@@ -1,17 +1,8 @@
-import { CommandInteraction, Message } from "discord.js";
-import error from "./error";
+import { CommandOption } from "./interfaces";
 
-export default function getAuthor(interaction: CommandInteraction | Message) {
-  try {
-    if (interaction instanceof CommandInteraction)
-      return interaction.user;
+export type CommandOptions = CommandOption[] | [];
 
-    else
-      return interaction.author;
-  } catch (e: any) {
-    error(e);
-  }
-}
+export type Categoris = "member" | "admin" | "music" | "owner" | "nsfw" | "moderate" | "ticket" | "giveaway";
 /**
  * @copyright
  * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA

@@ -1,13 +1,12 @@
-import { ChannelType, Message, PermissionsBitField, TextChannel } from "discord.js";
+import { ChannelType, Message, TextChannel } from "discord.js";
+import checkCmdCooldown from "../../utils/checkCmdCooldown";
+import checkCmdPerms from "../../utils/checkCmdPerms";
 import DiscordClient from "../../classes/Client";
 import error from "../../utils/error";
-import checkCmdPerms from "../../utils/checkCmdPerms";
-import checkCmdCooldown from "../../utils/checkCmdCooldown";
-import Database from "../../classes/Database";
 
 export default async (client: DiscordClient, message: Message) => {
     try {
-        const db = new Database(client.db!);
+        const db = client.db!;
 
         // Filter dm channels
         if (message.channel.type === ChannelType.DM) return;
@@ -82,10 +81,9 @@ export default async (client: DiscordClient, message: Message) => {
 }
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

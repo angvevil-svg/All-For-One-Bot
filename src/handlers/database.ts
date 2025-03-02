@@ -1,12 +1,13 @@
+import { QuickDB } from "quick.db";
 import DiscordClient from "../classes/Client";
-import { IDriver, QuickDB } from "quick.db";
-import post from "../functions/post";
-import { error } from "console";
+import Database from "../classes/Database";
 import config from "../../config";
+import error from "../utils/error";
+import post from "../functions/post";
 
 export default async (client: DiscordClient) => {
     try {
-        let driver: IDriver | undefined;
+        let driver: any;
         switch (config.source.database.type) {
             case "sql": {
                 const { SqliteDriver } = await import("quick.db");
@@ -30,16 +31,16 @@ export default async (client: DiscordClient) => {
             }
 
             case "mongodb": {
-                // const { MongoDriver } = await import("quickmongo");
-                // driver = new MongoDriver(config.source.database.mongoURL);
-                // await driver.connect();
+                const { MongoDriver } = await import("quickmongo"!);
+                driver = new MongoDriver(config.source.database.mongoURL);
+                await driver.connect();
                 break;
             }
         };
 
         const db = new QuickDB({ driver });
         await db.init();
-        client.db = db;
+        client.db = new Database(db);
         post(
             `Database Is Successfully Activated!! (Type: ${config.source.database.type.toLocaleUpperCase()})`,
             "S"
@@ -51,10 +52,9 @@ export default async (client: DiscordClient) => {
 }
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

@@ -1,8 +1,9 @@
 const config = {
+    api: {
+        nekos: "https://nekos.life/api"
+    },
     source: {
-        default_language: process.env.default_language || "en", // Bot default language in discord.
         anti_crash: process.env.anti_crash === "true" ? true : false || false, // Anticrash on or off
-        one_guild: process.env.one_guild === "true" ? true : false || false, // One Guild on or off
         logger: process.env.logger === "true" ? true : false || false, // Webhook logger on or off
         dashboard: {
             on: process.env.dashboard === "true" ? true : false || false, // Dashboad on or off
@@ -21,6 +22,10 @@ const config = {
         }
     },
     discord: {
+        default_language: process.env.default_language || "en", // Bot default language in discord.
+        one_guild: process.env.one_guild === "true" ? true : false || false, // One Guild on or off
+        delete_commands: process.env.delete_commands === "true" ? true : false || false, // Delete slash commands each time you run the source.
+        status_loop: parseInt(process.env.status_loop_count!) || 30 * 1000, // Bot status loop. (By default it's every 30 seconds)
         token: process.env.token || "", // Bot token.
         prefix: process.env.prefix || "", // Bot message command prefix.
         status: {
@@ -52,10 +57,9 @@ const config = {
 export default config;
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

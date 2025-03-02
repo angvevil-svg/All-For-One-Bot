@@ -24,16 +24,16 @@ export default class Database {
       return false;
   }
 
-  async set(name: string, input: any) {
+  async set<T>(name: string, input: T) {
     return await this.db.set(name, input);
   }
 
-  async push(name: string, input: any) {
+  async push<T>(name: string, input: T | T[]) {
     return await this.db.push(name, input);
   }
 
 
-  async pull(name: string, input: any) {
+  async pull<T>(name: string, input: T | T[]) {
     return await this.db.pull(name, input);
   }
 
@@ -41,10 +41,9 @@ export default class Database {
     return await this.db.add(name, input);
   }
 
-  async sub(name: string, input: any) {
+  async sub(name: string, input: number) {
     return await this.db.sub(name, input);
   }
-
 
   async delete(name: string) {
     return await this.db.delete(name);
@@ -60,10 +59,9 @@ export default class Database {
 }
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

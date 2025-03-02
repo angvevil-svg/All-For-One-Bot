@@ -1,7 +1,7 @@
 import { AttachmentBuilder, EmbedBuilder, WebhookClient, WebhookMessageCreateOptions } from "discord.js";
-import config from "../../config";
-import EmbedData from "../storage/embed";
 import HexToNumber from "../functions/HexToNumber";
+import EmbedData from "../storage/embed";
+import config from "../../config";
 import post from "../functions/post";
 
 interface ErrorType {
@@ -39,12 +39,12 @@ export default function error(error: ErrorType) {
               iconURL: EmbedData.footer.footerIcon
             }
           )
-          .setTitle(`${EmbedData.emotes.default.error}| An error occurred!!`)
+          .setTitle(`${EmbedData.emotes.error}| An error occurred!!`)
           .setDescription(`\`\`\`js\n${error.stack}\`\`\``)
           .addFields(
             [
               {
-                name: `${EmbedData.emotes.default.entry}| Name:`,
+                name: `${EmbedData.emotes.entry}| Name:`,
                 value: `${error.name}`
               }
             ]
@@ -54,7 +54,7 @@ export default function error(error: ErrorType) {
         embed.addFields(
           [
             {
-              name: `${EmbedData.emotes.default.prohibited}| Code:`,
+              name: `${EmbedData.emotes.prohibited}| Code:`,
               value: `${error.code}`
             }
           ]
@@ -64,7 +64,7 @@ export default function error(error: ErrorType) {
         embed.addFields(
           [
             {
-              name: `${EmbedData.emotes.default.globe}| httpStatus:`,
+              name: `${EmbedData.emotes.globe}| httpStatus:`,
               value: `${error.status}`
             }
           ]
@@ -73,17 +73,17 @@ export default function error(error: ErrorType) {
       embed.addFields(
         [
           {
-            name: `${EmbedData.emotes.default.clock}| Timestamp:`,
+            name: `${EmbedData.emotes.clock}| Timestamp:`,
             value: `**<t:${date}:D> | <t:${date}:R>**`
           }
         ]
       );
       if (error.stack && error.stack.length > 4087) {
-        data.content = `**${EmbedData.emotes.default.entry}| Name: \`${error.name}\`${error.code ?
-          `\n${EmbedData.emotes.default.prohibited}| Code: \`${error.code}\`` : ""
+        data.content = `**${EmbedData.emotes.entry}| Name: \`${error.name}\`${error.code ?
+          `\n${EmbedData.emotes.prohibited}| Code: \`${error.code}\`` : ""
           }${error.status ?
-            `\n${EmbedData.emotes.default.globe}| httpStatus: \`${error.status}\`` : ""
-          }\n${EmbedData.emotes.default.clock}| Timestamp: <t:${date}:D> | <t:${date}:R>**`;
+            `\n${EmbedData.emotes.globe}| httpStatus: \`${error.status}\`` : ""
+          }\n${EmbedData.emotes.clock}| Timestamp: <t:${date}:D> | <t:${date}:R>**`;
 
         data.files = [
           new AttachmentBuilder(Buffer.from(error.stack), {
@@ -115,10 +115,9 @@ export default function error(error: ErrorType) {
 }
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

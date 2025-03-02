@@ -1,13 +1,12 @@
-import { CommandInteractionOptionResolver, Interaction, MessageFlags } from "discord.js";
-import DiscordClient from "../../classes/Client";
-import Database from "../../classes/Database";
-import checkCmdPerms from "../../utils/checkCmdPerms";
+import { Interaction, MessageFlags } from "discord.js";
 import checkCmdCooldown from "../../utils/checkCmdCooldown";
+import checkCmdPerms from "../../utils/checkCmdPerms";
+import DiscordClient from "../../classes/Client";
 import error from "../../utils/error";
 
 export default async (client: DiscordClient, interaction: Interaction) => {
   try {
-    const db = new Database(client.db!);
+    const db = client.db!;
 
     // Load Slash Commands
     if (interaction.isCommand()) {
@@ -37,25 +36,31 @@ export default async (client: DiscordClient, interaction: Interaction) => {
           return;
 
         // Use flags conditionally
-        const ephemeralOption = interaction.options instanceof CommandInteractionOptionResolver
-          ? interaction.options.getString("ephemeral") === "true"
-          : false;
 
-        const replyFlags = ephemeralOption ? MessageFlags.Ephemeral : undefined;
+        const
+          hasEphemeralOption = command.data.options?.some(option =>
+            option.name === "ephemeral" ||
+            (option.type === 1 && option.options?.some(subOption => subOption.name === "ephemeral"))
+          ),
+          maxAttempts = 3; // How many tries to defer reply?
 
-        // Command Handler 
-        const DeferReply = async () => { // This function is for "unknow interaction" error.
-          try {
-            await interaction.deferReply({
-              flags: replyFlags,
-              withResponse: true
-            });
-          } catch {
-            await DeferReply();
+        if (hasEphemeralOption) {
+          let attempts = 0;
+
+          while (attempts < maxAttempts) {
+            try {
+              await interaction.deferReply({
+                flags: MessageFlags.Ephemeral,
+                withResponse: true
+              });
+              break;
+            } catch (e: any) {
+              attempts++;
+              if (attempts === maxAttempts)
+                error(e);
+            }
           }
-        };
-        if (command.data.options && (command.data.options?.find(a => a.name === "ephemeral") || command.data.options?.filter(a => a.type === 1)?.find(a => a.options?.find(b => b.name === "ephemeral"))))
-          await DeferReply();
+        }
 
         await db.add("totalCommandsUsed", 1);
         return await command.run(client, interaction);
@@ -67,10 +72,9 @@ export default async (client: DiscordClient, interaction: Interaction) => {
 }
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

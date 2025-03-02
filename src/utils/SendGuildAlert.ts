@@ -1,10 +1,10 @@
-import { EmbedBuilder, Guild, GuildMember, TextChannel, WebhookClient, WebhookMessageCreateOptions } from "discord.js";
-import DiscordClient from "../classes/Client";
+import { EmbedBuilder, GuildMember, TextChannel, WebhookClient, WebhookMessageCreateOptions } from "discord.js";
+import { SendGuildAlert } from "../types/interfaces";
+import HexToNumber from "../functions/HexToNumber";
+import EmbedData from "../storage/embed";
 import GetInvite from "./GetInvite";
 import config from "../../config";
 import error from "./error";
-import EmbedData from "../storage/embed";
-import HexToNumber from "../functions/HexToNumber";
 
 export default async function SendGuildAlert({
   client,
@@ -13,14 +13,7 @@ export default async function SendGuildAlert({
   isWebhook = false,
   description = "**-# The total number of servers I’m in is now `{guilds}`.**",
   isLeaved = false
-}: {
-  client: DiscordClient,
-  guild: Guild,
-  guildChannel?: TextChannel | null,
-  isWebhook?: boolean,
-  description?: string,
-  isLeaved?: boolean
-}) {
+}: SendGuildAlert) {
   try {
     let
       channel: WebhookClient | TextChannel | null,
@@ -51,18 +44,18 @@ export default async function SendGuildAlert({
       .addFields(
         [
           {
-            name: `${EmbedData.emotes.default.owner}| Owner:`,
-            value: `${EmbedData.emotes.default.reply} **${owner!.user} | \`${owner!.user?.tag}\` | \`${owner!.user?.id || guild.ownerId}\`**`,
+            name: `${EmbedData.emotes.owner}| Owner:`,
+            value: `${EmbedData.emotes.reply} **${owner!.user} | \`${owner!.user?.tag}\` | \`${owner!.user?.id || guild.ownerId}\`**`,
             inline: false
           },
           {
-            name: `${EmbedData.emotes.default.server}| Guild:`,
-            value: `${EmbedData.emotes.default.reply} **${invite ? `[${guild.name}](${invite.url})` : `${guild.name}`} | \`${guild.id}\` | \`${guild.memberCount}\` Members**`,
+            name: `${EmbedData.emotes.server}| Guild:`,
+            value: `${EmbedData.emotes.reply} **${invite ? `[${guild.name}](${invite.url})` : `${guild.name}`} | \`${guild.id}\` | \`${guild.memberCount}\` Members**`,
             inline: false
           },
           {
-            name: `${EmbedData.emotes.default.date}| Created At:`,
-            value: `${EmbedData.emotes.default.reply} **<t:${guildCreatedAt}:D> | <t:${guildCreatedAt}:R>**`,
+            name: `${EmbedData.emotes.date}| Created At:`,
+            value: `${EmbedData.emotes.reply} **<t:${guildCreatedAt}:D> | <t:${guildCreatedAt}:R>**`,
             inline: false
           }
         ]
@@ -94,10 +87,9 @@ export default async function SendGuildAlert({
 }
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

@@ -1,142 +1,125 @@
-import DiscordClient from "../../classes/Client";
-import Database from "../../classes/Database";
-import post from "../../functions/post";
-import error from "../../utils/error";
-import chooseRandom from "../../functions/chooseRandom";
-import replaceValues from "../../functions/replaceValues";
-import logger from "../../functions/logger";
-import os from "os";
-import firstUpperCase from "../../functions/firstUpperCase";
 import { ActivityType, REST, Routes, version } from "discord.js";
+import firstUpperCase from "../../functions/firstUpperCase";
+import DiscordClient from "../../classes/Client";
+import replaceValues from "../../functions/replaceValues";
+import chooseRandom from "../../functions/chooseRandom";
+import logger from "../../functions/logger";
+import error from "../../utils/error";
+import post from "../../functions/post";
+import os from "os";
 
 export default async (client: DiscordClient) => {
   try {
-
-    // Load Slash Commands
     const
+      { discord: { delete_commands, status_loop, token, prefix, status: { activity, presence, type } } } = client.config,
       commands = client.commands
-        .filter(a => a.only_slash)
-        .map(a => a.data),
+        .filter(cmd => cmd.only_slash)
+        .map(cmd => cmd.data),
 
-      rest = new REST()
-        .setToken(client.config.discord.token),
+      rest = new REST().setToken(token),
+      db = client.db!;
 
-      db = new Database(client.db!);
+    post(`Updating ${String(commands.length).cyan} (/) command.`, "S");
 
-    // Start to upload all commands to api
-    let data: any;
-    post(
-      "Updating " + String(commands.length).cyan + " (/) command.".green,
-      "S"
-    );
-
-    // Create commands
-    data = await rest.put(
-      Routes.applicationCommands(client.user!.id),
-      {
-        body: commands
+    // Delete current (/)commands
+    if (delete_commands)
+      try {
+        const deleted = await rest.delete(
+          Routes.applicationCommands(client.user!.id)
+        ) as any;
+        post(`${String(deleted?.length).cyan} (/) commands successfully deleted.`.red, "S");
+      } catch (e: any) {
+        post("Failed to delete (/) commands.".red, "E", "red", "red");
+        error(e);
       }
-    );
-    post(
-      String(data.length).cyan + " (/) command successfully reloaded.".green,
-      "S"
-    );
 
-    // Change Bot Status
-    setInterval(async function () {
-      if (client.config.discord.status.activity.length < 1) return;
+    // Create (/)commands
+    try {
+      const created = await rest.put(
+        Routes.applicationCommands(client.user!.id),
+        { body: commands }
+      ) as any;
+      post(`${String(created?.length).cyan} (/) commands successfully created.`.green, "S");
+    } catch (e: any) {
+      post("Failed to create (/) commands.".red, "E", "red", "red");
+      error(e);
+    }
+
+    // Change bot status 
+    setInterval(async () => {
+      if (activity.length < 1)
+        return;
 
       const
-        Presence = chooseRandom(client.config.discord.status.presence || ["online"]),
-        Activity = chooseRandom(client.config.discord.status.activity),
-        Type = firstUpperCase(
-          String(chooseRandom(client.config.discord.status.type || ["Custom"])).toLowerCase()
-        ),
-        stateName = replaceValues(Activity, {
-          username: client.user!.displayName.toLocaleString(),
-          servers: client.guilds.cache.size.toLocaleString(),
-          members: client.guilds.cache.reduce((a, b) => a + b.memberCount, 0).toLocaleString(),
-          prefix: client.config.discord.prefix,
-          usedCommands: (await db.get("totalCommandsUsed") || 0).toLocaleString()
-        });
+        Presence = chooseRandom(presence || ["online"]),
+        ActivityText = chooseRandom(activity),
+        TypeText = firstUpperCase(String(chooseRandom(type || ["Custom"])).toLowerCase());
+
+      // Status state name
+      const stateName = replaceValues(ActivityText, {
+        username: client.user!.displayName,
+        servers: client.guilds.cache.size.toLocaleString(),
+        members: client.guilds.cache.reduce((total, guild) => total + guild.memberCount, 0).toLocaleString(),
+        prefix: prefix,
+        usedCommands: (await db.get("totalCommandsUsed") || 0).toLocaleString()
+      });
 
       client.user!.setPresence({
         status: Presence,
         activities: [
           {
-            type: ActivityType[Type as keyof typeof ActivityType],
+            type: ActivityType[TypeText as keyof typeof ActivityType],
             name: stateName,
-            state: Type === "Custom" ? stateName : ""
+            state: TypeText === "Custom" ? stateName : ""
           }
         ]
       });
-    }, 30000);
+    }, status_loop);
+
+    // Log bot information
     post(
       "Discord bot is online!".blue + `\n` +
-      client.user!.tag.cyan + " is now online :)".green,
+      `${client.user!.tag.cyan} is now online :)`.green,
       "S"
     );
     logger(
-      "Working Guilds: ".blue +
-      `${client.guilds.cache.size.toLocaleString()} Servers`.cyan + `\n` +
+      "Working Guilds: ".blue + `${client.guilds.cache.size.toLocaleString()} Servers`.cyan + `\n` +
       "Watching Members: ".blue +
-      `${client.guilds.cache
-        .reduce((a, b) => a + b.memberCount, 0)
-        .toLocaleString()} Members`.cyan
-      + `\n` +
+      `${client.guilds.cache.reduce((total, guild) => total + guild.memberCount, 0).toLocaleString()} Members`.cyan + `\n` +
       "Commands: ".blue +
-      `slashCommands[${commands.length}] & messageCommands[${client.commands.filter(a => a.only_message).size}]`.cyan + `\n` +
-      "Discord.js: ".blue +
-      `v${version}`.cyan + `\n` +
-      "Node.js: ".blue +
-      `${process.version}`.cyan + `\n` +
+      `slashCommands[${commands.length}] & messageCommands[${client.commands.filter(cmd => cmd.only_message).size}]`.cyan + `\n` +
+      "Discord.js: ".blue + `v${version}`.cyan + `\n` +
+      "Node.js: ".blue + `${process.version}`.cyan + `\n` +
       "Plattform: ".blue +
-      `${process.platform} ${process.arch} | ${os.cpus().map((i) => `${i.model}`)[0]} | ${String(os.loadavg()[0])}%`.cyan + `\n` +
+      `${process.platform} ${process.arch} | ${os.cpus()[0].model} | ${String(os.loadavg()[0])}%`.cyan + `\n` +
       "Memory: ".blue +
-      `${Math.round(
-        +((os.totalmem() - os.freemem()) / 1024 / 1024).toFixed(2)
-      )
-        .toLocaleString()
-        }/${Math.round(
-          +((os.totalmem()) / 1024 / 1024).toFixed(2)
-        )
-          .toLocaleString()
-        } MB | ${(
-          (
-            (os.totalmem() - os.freemem()) / os.totalmem()
-          ) * 100)
-          .toFixed(2)
-        }%`.cyan
+      `${Math.round(((os.totalmem() - os.freemem()) / 1024 / 1024)).toLocaleString()}` +
+      `/${Math.round((os.totalmem() / 1024 / 1024)).toLocaleString()} MB | ` +
+      `${(((os.totalmem() - os.freemem()) / os.totalmem()) * 100).toFixed(2)}%`.cyan
     );
 
-    // Add Slash Commands Id to Commands
-    client.commands.forEach(async (command) => {
-      const
-        cmd = client.commands.get(command.data.name)!,
-        slashCommand = (await client.application!.commands.fetch({ cache: true }))
-          .find(a => a.name === command.data.name)!;
-
-      return await client.commands.set(
-        cmd.data.name,
-        {
-          ...cmd,
-          data: {
-            ...cmd.data,
-            id: slashCommand.id
-          }
-        }
-      );
-    });
+    // Add commands id to client.commands collection
+    const fetchedCommands = await client.application!.commands.fetch({ cache: true });
+    await Promise.all(
+      client.commands.map(async (cmd) => {
+        const slashCmd = fetchedCommands.find(c => c.name === cmd.data.name);
+        if (slashCmd) 
+          client.commands.set(cmd.data.name, {
+            ...cmd,
+            data: { ...cmd.data, id: slashCmd.id }
+          });
+        
+      })
+    );
   } catch (e: any) {
     error(e);
   }
-}
+};
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

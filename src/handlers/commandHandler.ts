@@ -1,9 +1,9 @@
+import { CommandType } from "../types/interfaces";
+import { readdirSync } from "fs";
+import firstUpperCase from "../functions/firstUpperCase";
 import DiscordClient from "../classes/Client";
 import error from "../utils/error";
-import firstUpperCase from "../functions/firstUpperCase";
 import post from "../functions/post";
-import CommandType from "../types/command";
-import { readdirSync } from "fs";
 
 export default async (client: DiscordClient) => {
     try {
@@ -49,10 +49,9 @@ async function loadCommand(dirname: string, type: "only_slash" | "only_message",
 }
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

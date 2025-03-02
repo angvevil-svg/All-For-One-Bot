@@ -1,13 +1,14 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, AttachmentBuilder, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, Message, PermissionFlagsBits, PermissionsBitField } from "discord.js";
-import CommandType from "../../types/command";
-import error from "../../utils/error";
-import getAuthor from "../../utils/getAuthor";
+import { EphemeralOption } from "../../storage/contants";
+import { CommandType } from "../../types/interfaces";
 import GenerateKissImage from "../../classes/GenerateKissImage";
-import responseError from "../../utils/responseError";
-import response from "../../utils/response";
-import EmbedData from "../../storage/embed";
-import HexToNumber from "../../functions/HexToNumber";
 import getLinkResponse from "../../functions/getLinkResponse";
+import responseError from "../../utils/responseError";
+import HexToNumber from "../../functions/HexToNumber";
+import EmbedData from "../../storage/embed";
+import getAuthor from "../../utils/getAuthor";
+import response from "../../utils/response";
+import error from "../../utils/error";
 
 const command: CommandType = {
   data: {
@@ -21,8 +22,6 @@ const command: CommandType = {
       PermissionFlagsBits.SendMessages,
       PermissionFlagsBits.EmbedLinks
     ]),
-    dm_permission: true,
-    nsfw: false,
     options: [
       {
         name: "kiss",
@@ -51,22 +50,7 @@ const command: CommandType = {
             ],
             required: true
           },
-          {
-            name: "ephemeral",
-            description: "آیا می‌خواهید این پیام مخفی بماند؟",
-            type: ApplicationCommandOptionType.String,
-            choices: [
-              {
-                name: "بله",
-                value: "true"
-              },
-              {
-                name: "خیر",
-                value: "false"
-              }
-            ],
-            required: false
-          }
+          EphemeralOption
         ]
       },
       {
@@ -108,22 +92,7 @@ const command: CommandType = {
             ],
             required: true
           },
-          {
-            name: "ephemeral",
-            description: "آیا می‌خواهید این پیام مخفی بماند؟",
-            type: ApplicationCommandOptionType.String,
-            choices: [
-              {
-                name: "بله",
-                value: "true"
-              },
-              {
-                name: "خیر",
-                value: "false"
-              }
-            ],
-            required: false
-          }
+          EphemeralOption
         ]
       }
     ]
@@ -131,7 +100,6 @@ const command: CommandType = {
   category: "member",
   aliases: ["h", "commands"],
   cooldown: 10,
-  only_owner: false,
   only_slash: true,
   only_message: true,
 
@@ -307,10 +275,9 @@ const command: CommandType = {
 export default command;
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */

@@ -31,23 +31,25 @@
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+import { readdirSync, readFileSync } from "fs";
+import { PackageJson } from "./src/types/interfaces";
+import DiscordClient from "./src/classes/Client";
+import * as dotenv from "dotenv";
+import error from "./src/utils/error";
+import post from "./src/functions/post";
+
 // Add color to console messages.
 import "colors";
 
+
 // Support .env args
-import { config } from "dotenv";
-config();
+dotenv.config();
 
 // Load discord client
-import DiscordClient from "./src/classes/Client";
-import error from "./src/utils/error";
-import post from "./src/functions/post";
-import { readdirSync, readFileSync } from "fs";
-
 const
     client = new DiscordClient(),
     handle = readdirSync(__dirname + "/src/handlers").filter(file => file.endsWith(".js")),
-    packageJSON: { name: string; version: string; } = JSON.parse(readFileSync("./package.json", "utf8"));
+    packageJSON: PackageJson = JSON.parse(readFileSync("./package.json", "utf8"));
 
 // Login 
 const main = async () => {
@@ -101,10 +103,9 @@ if (client.config.source.anti_crash) {
 export default client;
 /**
  * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
+ * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
+ * Developed for Persian Caesar | https://github.com/Persian-Caesar | https://dsc.gg/persian-caesar
+ *
+ * If you encounter any issues or need assistance with this code,
+ * please make sure to credit "Persian Caesar" in your documentation or communications.
  */
