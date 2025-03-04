@@ -24,6 +24,8 @@ export interface CommandOption {
     required?: boolean;
     options?: CommandOptions;
     choices?: Array<{ name: string, value: string }>;
+    default_member_permissions?: PermissionsBitField;
+    default_bot_permissions?: PermissionsBitField;
 }
 
 export interface CommandType {

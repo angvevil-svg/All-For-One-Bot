@@ -1,4 +1,4 @@
-import { Interaction, MessageFlags } from "discord.js";
+import { ApplicationCommandOptionType, Interaction, MessageFlags } from "discord.js";
 import checkCmdCooldown from "../../utils/checkCmdCooldown";
 import checkCmdPerms from "../../utils/checkCmdPerms";
 import DiscordClient from "../../classes/Client";
@@ -25,7 +25,6 @@ export default async (client: DiscordClient, interaction: Interaction) => {
               content: "این کامند فقط برای دولوپر هستش."
             })
 
-
         // Check command perms
         if (interaction.guild)
           if (await checkCmdPerms(interaction, command))
@@ -36,7 +35,6 @@ export default async (client: DiscordClient, interaction: Interaction) => {
           return;
 
         // Use flags conditionally
-
         const
           hasEphemeralOption = command.data.options?.some(option =>
             option.name === "ephemeral" ||

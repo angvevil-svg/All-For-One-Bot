@@ -1,9 +1,6 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, GuildMember, Message, PermissionFlagsBits, PermissionsBitField } from "discord.js";
-import { EphemeralOption, ReasonOption } from "../../storage/contants";
+import { ApplicationCommandType, CommandInteraction, CommandInteractionOptionResolver, GuildMember, PermissionsBitField } from "discord.js";
+import { MemberCmdOptions } from "../../storage/contants";
 import { CommandType } from "../../types/interfaces";
-import HexToNumber from "../../functions/HexToNumber";
-import EmbedData from "../../storage/embed";
-import getAuthor from "../../utils/getAuthor";
 import error from "../../utils/error";
 
 const command: CommandType = {
@@ -12,89 +9,15 @@ const command: CommandType = {
     description: "مدیریت ممبر ها در سرور.",
     type: ApplicationCommandType.ChatInput,
     default_member_permissions: new PermissionsBitField([
-      PermissionFlagsBits.SendMessages,
+      "SendMessages",
+      "ViewChannel"
     ]),
     default_bot_permissions: new PermissionsBitField([
-      PermissionFlagsBits.SendMessages,
-      PermissionFlagsBits.EmbedLinks
+      "SendMessages",
+      "EmbedLinks",
+      "ViewChannel"
     ]),
-    options: [
-      {
-        name: "ban",
-        description: "بن ممبر از سرور.",
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: "user",
-            description: "کاربر را وارد کنید.",
-            type: ApplicationCommandOptionType.String,
-            required: true
-          },
-          {
-            name: "undo",
-            description: "آن بن یوزر در سرور.",
-            type: ApplicationCommandOptionType.Boolean,
-            required: false
-          },
-          ReasonOption,
-          {
-            name: "delete_messages",
-            type: ApplicationCommandOptionType.String,
-            description: "پیغام های ممبر از چه موقع به بعد پاک شود؟",
-            choices: [
-              {
-                name: "Don't Delete Any",
-                value: "0"
-              },
-              {
-                name: "Previous Hour",
-                value: "1h"
-              },
-              {
-                name: "Previous 6 Hours",
-                value: "6h"
-              },
-              {
-                name: "Previous 12 Hours",
-                value: "12h"
-              },
-              {
-                name: "Previous 24 Hours",
-                value: "24h"
-              },
-              {
-                name: "Previous 3 Days",
-                value: "3d"
-              },
-              {
-                name: "Previous 7 Days",
-                value: "7d"
-              }
-            ],
-            required: false
-          },
-          {
-            name: "time",
-            description: "زمان بن بودن کاربر را وارد کنید.",
-            type: ApplicationCommandOptionType.String,
-            required: false
-          },
-          EphemeralOption
-        ]
-      },
-      {
-        name: "kick",
-        description: "اخراج ممبر از سرور.",
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: ""
-          },
-          ReasonOption,
-          EphemeralOption
-        ]
-      }
-    ]
+    options: MemberCmdOptions
   },
   category: "admin",
   aliases: ["mem"],
@@ -110,7 +33,7 @@ const command: CommandType = {
 
       switch (Subcommand) {
         case "ban": {
-          interaction.guild?.members.kick([], { deleteMessageSeconds, reason })
+          interaction.member instanceof GuildMember && interaction.member.voice
         }
 
         default: {

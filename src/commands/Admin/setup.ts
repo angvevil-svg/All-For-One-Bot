@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, GuildMember, Message, PermissionFlagsBits, PermissionsBitField } from "discord.js";
+import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, PermissionsBitField } from "discord.js";
 import { EphemeralOption } from "../../storage/contants";
 import { CommandType } from "../../types/interfaces";
 import HexToNumber from "../../functions/HexToNumber";
@@ -12,11 +12,13 @@ const command: CommandType = {
     description: "تنظیمات ربات در سرور.",
     type: ApplicationCommandType.ChatInput,
     default_member_permissions: new PermissionsBitField([
-      PermissionFlagsBits.SendMessages,
+      "SendMessages",
+      "ViewChannel"
     ]),
     default_bot_permissions: new PermissionsBitField([
-      PermissionFlagsBits.SendMessages,
-      PermissionFlagsBits.EmbedLinks
+      "SendMessages",
+      "ViewChannel",
+      "EmbedLinks"
     ]),
     options: [
       {
