@@ -4,51 +4,63 @@ import { CommandOption } from "../types/interfaces";
 
 // Single options
 export const
-  EphemeralOption: CommandOption = {
-    name: "ephemeral",
-    description: "آیا می‌خواهید این پیام مخفی بماند؟",
-    type: ApplicationCommandOptionType.String,
-    choices: [
-      {
-        name: "بله",
-        value: "true"
-      },
-      {
-        name: "خیر",
-        value: "false"
-      }
-    ],
-    required: false
+  EphemeralOption = function (required = false): CommandOption {
+    return {
+      name: "ephemeral",
+      description: "آیا می‌خواهید این پیام مخفی بماند؟",
+      type: ApplicationCommandOptionType.String,
+      choices: [
+        {
+          name: "بله",
+          value: "true"
+        },
+        {
+          name: "خیر",
+          value: "false"
+        }
+      ],
+      required
+    };
   },
-  ReasonOption: CommandOption = {
-    name: "reason",
-    description: "دلیل را ذکر کنید.",
-    type: ApplicationCommandOptionType.String,
-    required: false
+  ReasonOption = function (required = false): CommandOption {
+    return {
+      name: "reason",
+      description: "دلیل را ذکر کنید.",
+      type: ApplicationCommandOptionType.String,
+      required
+    };
   },
-  UserOption: CommandOption = {
-    name: "user",
-    description: "کاربر را وارد کنید.",
-    type: ApplicationCommandOptionType.User,
-    required: false
+  UserOption = function (required = false, name = "user", description = "کاربر را وارد کنید."): CommandOption {
+    return {
+      name,
+      description,
+      type: ApplicationCommandOptionType.User,
+      required
+    }
   },
-  RoleOption: CommandOption = {
-    name: "role",
-    description: "رول را وارد کنید.",
-    type: ApplicationCommandOptionType.Role,
-    required: false
+  RoleOption = function (required = false, name = "role", description = "رول را وارد کنید."): CommandOption {
+    return {
+      name,
+      description,
+      type: ApplicationCommandOptionType.Role,
+      required
+    };
   },
-  TimeOption: CommandOption = {
-    name: "time",
-    description: "زمان فعال بودن عملگر بر روی کاربر را مشخص کنید.",
-    type: ApplicationCommandOptionType.String,
-    required: false
+  TimeOption = function (required = false): CommandOption {
+    return {
+      name: "time",
+      description: "زمان فعال بودن عملگر بر روی کاربر را مشخص کنید.",
+      type: ApplicationCommandOptionType.String,
+      required
+    };
   },
-  ForAllOption: CommandOption = {
-    name: "for-all",
-    description: "انجام فعالیت روی همه ممبر ها.",
-    type: ApplicationCommandOptionType.Boolean,
-    required: false
+  ForAllOption = function (required = false): CommandOption {
+    return {
+      name: "for-all",
+      description: "انجام فعالیت روی همه ممبر ها.",
+      type: ApplicationCommandOptionType.Boolean,
+      required
+    };
   };
 
 // Multi options
@@ -67,15 +79,15 @@ export const
         "BanMembers"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
+        UserOption(),
+        ForAllOption(),
         {
           name: "undo",
           description: "آن بن یوزر در سرور.",
           type: ApplicationCommandOptionType.Boolean,
           required: false
         },
-        ReasonOption,
+        ReasonOption(),
         {
           name: "delete_messages",
           type: ApplicationCommandOptionType.String,
@@ -112,8 +124,8 @@ export const
           ],
           required: false
         },
-        TimeOption,
-        EphemeralOption
+        TimeOption(),
+        EphemeralOption()
       ]
     },
     {
@@ -127,10 +139,10 @@ export const
         "KickMembers"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
-        ReasonOption,
-        EphemeralOption
+        UserOption(),
+        ForAllOption(),
+        ReasonOption(),
+        EphemeralOption()
       ]
     },
     {
@@ -144,17 +156,17 @@ export const
         "ModerateMembers"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
+        UserOption(),
+        ForAllOption(),
         {
           name: "undo",
           description: "باز کردن قفل یوزر در سرور.",
           type: ApplicationCommandOptionType.Boolean,
           required: false
         },
-        ReasonOption,
-        TimeOption,
-        EphemeralOption
+        ReasonOption(),
+        TimeOption(),
+        EphemeralOption()
       ]
     },
     {
@@ -162,8 +174,8 @@ export const
       type: ApplicationCommandOptionType.Subcommand,
       description: "نمایش اطلاعات کامل ممبر در سرور.",
       options: [
-        UserOption,
-        EphemeralOption
+        UserOption(),
+        EphemeralOption()
       ]
     },
     {
@@ -177,10 +189,10 @@ export const
         "ModerateMembers"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
-        ReasonOption,
-        EphemeralOption
+        UserOption(),
+        ForAllOption(),
+        ReasonOption(),
+        EphemeralOption()
       ]
     },
     {
@@ -194,16 +206,16 @@ export const
         "ManageNicknames"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
+        UserOption(),
+        ForAllOption(),
         {
           name: "input",
           description: "نیک نیم خود را وارد کنید.",
           type: ApplicationCommandOptionType.String,
           required: false
         },
-        ReasonOption,
-        EphemeralOption
+        ReasonOption(),
+        EphemeralOption()
       ]
     }
   ],
@@ -221,17 +233,17 @@ export const
         "MuteMembers"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
+        UserOption(),
+        ForAllOption(),
         {
           name: "undo",
           description: "باز کردن صدای ممبر در ویس.",
           type: ApplicationCommandOptionType.Boolean,
           required: false
         },
-        ReasonOption,
-        TimeOption,
-        EphemeralOption
+        ReasonOption(),
+        TimeOption(),
+        EphemeralOption()
       ]
     },
     {
@@ -245,17 +257,17 @@ export const
         "DeafenMembers"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
+        UserOption(),
+        ForAllOption(),
         {
           name: "undo",
           description: "باز کردن شنوایی ممبر در ویس.",
           type: ApplicationCommandOptionType.Boolean,
           required: false
         },
-        ReasonOption,
-        TimeOption,
-        EphemeralOption
+        ReasonOption(),
+        TimeOption(),
+        EphemeralOption()
       ]
     },
     {
@@ -269,8 +281,8 @@ export const
         "MoveMembers"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
+        UserOption(),
+        ForAllOption(),
         {
           name: "to",
           description: "ویس چنلی را انتخاب کنید.",
@@ -278,8 +290,8 @@ export const
           channel_types: [ChannelType.GuildVoice],
           required: true
         },
-        ReasonOption,
-        EphemeralOption
+        ReasonOption(),
+        EphemeralOption()
       ]
     },
     {
@@ -293,16 +305,16 @@ export const
         "RequestToSpeak"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
+        UserOption(),
+        ForAllOption(),
         {
           name: "undo",
           description: "پایین آوردن ممبر از استیج.",
           type: ApplicationCommandOptionType.Boolean,
           required: false
         },
-        ReasonOption,
-        EphemeralOption
+        ReasonOption(),
+        EphemeralOption()
       ]
     },
     {
@@ -316,10 +328,10 @@ export const
         "ModerateMembers"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
-        ReasonOption,
-        EphemeralOption
+        UserOption(),
+        ForAllOption(),
+        ReasonOption(),
+        EphemeralOption()
       ]
     }
   ],
@@ -331,8 +343,8 @@ export const
       description: "نمایش اطلاعات رول.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        RoleOption,
-        EphemeralOption
+        RoleOption(true),
+        EphemeralOption()
       ]
     },
     {
@@ -346,84 +358,140 @@ export const
         "ManageRoles"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
         {
-          name: "undo",
-          description: "باز کردن شنوایی ممبر در ویس.",
-          type: ApplicationCommandOptionType.Boolean,
-          required: false
-        },
-        ReasonOption,
-        TimeOption,
-        EphemeralOption
-      ]
-    },
-    {
-      name: "move",
-      description: "جا به جایی ممبر از ویس به ویس مدنظر.",
-      type: ApplicationCommandOptionType.Subcommand,
-      default_bot_permissions: new PermissionsBitField([
-        "MoveMembers"
-      ]),
-      default_member_permissions: new PermissionsBitField([
-        "MoveMembers"
-      ]),
-      options: [
-        UserOption,
-        ForAllOption,
-        {
-          name: "to",
-          description: "ویس چنلی را انتخاب کنید.",
-          type: ApplicationCommandOptionType.Channel,
-          channel_types: [ChannelType.GuildVoice],
+          name: "name",
+          description: "نام رول جدید را وارد کنید.",
+          type: ApplicationCommandOptionType.String,
           required: true
         },
-        ReasonOption,
-        EphemeralOption
-      ]
-    },
-    {
-      name: "request-to-speak",
-      description: "آوردن کاربر به بالای استیج چنل.",
-      type: ApplicationCommandOptionType.Subcommand,
-      default_bot_permissions: new PermissionsBitField([
-        "RequestToSpeak"
-      ]),
-      default_member_permissions: new PermissionsBitField([
-        "RequestToSpeak"
-      ]),
-      options: [
-        UserOption,
-        ForAllOption,
         {
-          name: "undo",
-          description: "پایین آوردن ممبر از استیج.",
+          name: "icon",
+          description: "آیکون رول جدید را آپلود کنید.",
+          type: ApplicationCommandOptionType.Attachment,
+          required: false
+        },
+        {
+          name: "hoist",
+          description: "آیا رول قابل نمایش در لیست ممبر ها باشد؟",
           type: ApplicationCommandOptionType.Boolean,
           required: false
         },
-        ReasonOption,
-        EphemeralOption
+        {
+          name: "mentionable",
+          description: "آیا همه بتوانند رول را منشن کنند؟",
+          type: ApplicationCommandOptionType.Boolean,
+          required: false
+        },
+        {
+          name: "color",
+          description: "رنگ رول جدید را وارد کنید.",
+          type: ApplicationCommandOptionType.String,
+          required: false
+        },
+        {
+          name: "position",
+          description: "رنگ رول جدید را وارد کنید.",
+          type: ApplicationCommandOptionType.String,
+          autocomplete: true,
+          required: false
+        },
+        ReasonOption(),
+        EphemeralOption()
       ]
     },
     {
-      name: "disconnect",
-      description: "دیسی کردن ممبر از ویس چنل.",
+      name: "clone",
+      description: "ساخت رول مشابد از رول مشخص.",
       type: ApplicationCommandOptionType.Subcommand,
       default_bot_permissions: new PermissionsBitField([
-        "ModerateMembers"
+        "ManageRoles"
       ]),
       default_member_permissions: new PermissionsBitField([
-        "ModerateMembers"
+        "ManageRoles"
       ]),
       options: [
-        UserOption,
-        ForAllOption,
-        ReasonOption,
-        EphemeralOption
+        RoleOption(true),
+        ReasonOption(),
+        EphemeralOption()
+      ]
+    },
+    {
+      name: "add",
+      description: "اضافه کردن رول به ممبر یا ممبر ها.",
+      type: ApplicationCommandOptionType.Subcommand,
+      default_bot_permissions: new PermissionsBitField([
+        "ManageRoles"
+      ]),
+      default_member_permissions: new PermissionsBitField([
+        "ManageRoles"
+      ]),
+      options: [
+        RoleOption(true),
+        UserOption(),
+        RoleOption(false, "to-everyone-have", "اضافه کردن رول به تمامی کسایی این رول را دارند."),
+        {
+          name: "to",
+          description: "اضافه کردن رول به چه کسایی؟",
+          type: ApplicationCommandOptionType.String,
+          choices: [
+            {
+              name: "Humans",
+              value: "humans"
+            },
+            {
+              name: "Bots",
+              value: "bots"
+            },
+            {
+              name: "Everyone",
+              value: "everyone"
+            }
+          ],
+          required: false
+        },
+        ReasonOption(),
+        EphemeralOption()
+      ]
+    },
+    {
+      name: "copy",
+      description: "کپی کردن رول های ممبر به ممبر یا ممبر ها.",
+      type: ApplicationCommandOptionType.Subcommand,
+      default_bot_permissions: new PermissionsBitField([
+        "ManageRoles"
+      ]),
+      default_member_permissions: new PermissionsBitField([
+        "ManageRoles"
+      ]),
+      options: [
+        UserOption(true, "from", "کپی رول های این ممبر."),
+        UserOption(false, "to-user", "کپی رول های ممبر به این ممبر."),
+        RoleOption(false, "to-everyone-have", "کپی کردن رول به تمامی کسایی این رول را دارند."),
+        {
+          name: "to",
+          description: "اضافه کردن رول به چه کسایی؟",
+          type: ApplicationCommandOptionType.String,
+          choices: [
+            {
+              name: "Humans",
+              value: "humans"
+            },
+            {
+              name: "Bots",
+              value: "bots"
+            },
+            {
+              name: "Everyone",
+              value: "everyone"
+            }
+          ],
+          required: false
+        },
+        ReasonOption(),
+        EphemeralOption()
       ]
     }
-  ]  ;
+  ];
 
 /**
  * @copyright

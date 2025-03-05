@@ -6,7 +6,7 @@ import config from "../../config";
 export default class DiscordClient extends Client {
     commands: Collection<string, CommandType>;
     cooldowns: Collection<string, Collection<string, number>>;
-    config;
+    config: typeof config;
     db: Database | null;
     constructor(options?: ClientOptions) {
         if (!options)

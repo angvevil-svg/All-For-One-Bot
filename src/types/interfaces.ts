@@ -23,6 +23,7 @@ export interface CommandOption {
     channel_types?: ChannelType[];
     required?: boolean;
     options?: CommandOptions;
+    autocomplete?: boolean;
     choices?: Array<{ name: string, value: string }>;
     default_member_permissions?: PermissionsBitField;
     default_bot_permissions?: PermissionsBitField;
