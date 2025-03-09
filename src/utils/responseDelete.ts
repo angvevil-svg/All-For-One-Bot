@@ -1,18 +1,29 @@
-import { InteractionReplyOptions, MessageReplyOptions } from "discord.js";
 import { isBaseInteraction } from "../functions/functions";
 import { Respondable } from "../types/types";
+import { Message } from "discord.js";
 import error from "./error";
 
-export default async function response(interaction: Respondable, data: InteractionReplyOptions | MessageReplyOptions) {
+export default async function responseDelete(
+  interaction: Respondable,
+  message?: Message | null
+) {
   try {
     if (isBaseInteraction(interaction)) {
-      if ("editReply" in interaction)
-        return await interaction.editReply(data as InteractionReplyOptions);
+      if ("deleteReply" in interaction)
+        return await interaction.deleteReply().catch(e => e);
     }
 
-    else
-      return await interaction.reply(data as MessageReplyOptions);
+    else {
+      if (interaction.deletable)
+        await interaction.delete().catch(e => e);
 
+      if (message?.deletable)
+        await message.delete().catch(e => e);
+
+      return;
+    }
+
+    return;
   } catch (e: any) {
     error(e);
   }

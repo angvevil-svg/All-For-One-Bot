@@ -1,10 +1,22 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, PermissionsBitField } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ChannelType,
+  CommandInteraction,
+  CommandInteractionOptionResolver,
+  EmbedBuilder,
+  Message,
+  PermissionsBitField
+} from "discord.js";
 import { EphemeralOption } from "../../storage/contants";
 import { CommandType } from "../../types/interfaces";
+import responseError from "../../utils/responseError";
 import HexToNumber from "../../functions/HexToNumber";
-import EmbedData from "../../storage/embed";
 import getAuthor from "../../utils/getAuthor";
+import EmbedData from "../../storage/embed";
+import response from "../../utils/response";
 import error from "../../utils/error";
+import config from "../../../config";
 
 const command: CommandType = {
   data: {
@@ -38,7 +50,7 @@ const command: CommandType = {
             type: ApplicationCommandOptionType.Channel,
             channel_types: [ChannelType.GuildText]
           },
-          EphemeralOption
+          EphemeralOption()
         ]
       }
     ]
@@ -74,7 +86,24 @@ const command: CommandType = {
         }
 
         default: {
-          break;
+          if (interaction instanceof Message) {
+            const
+              prefix = config.discord.prefix,
+              embed = new EmbedBuilder()
+                .setTitle(`📋 لیست ساب‌کامندهای ${prefix}${command.data.name}`)
+                .setColor(HexToNumber(EmbedData.color.theme))
+                .setDescription("لطفاً یکی از ساب‌کامندهای زیر را انتخاب کنید:")
+                .setFooter({ text: "برای استفاده از هر ساب‌کامند، دستور مورد نظر را وارد کنید." });
+
+            command.data.options!.forEach(cmd => {
+              embed.addFields({ name: cmd.name, value: cmd.description });
+            });
+            return await response(interaction, { embeds: [embed], ephemeral: true });
+          }
+
+          else
+            return await responseError(interaction, "ساب‌کامند نامعتبر است. لطفاً از گزینه‌های موجود استفاده کنید.");
+
         }
       }
 

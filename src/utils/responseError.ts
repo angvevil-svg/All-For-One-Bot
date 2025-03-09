@@ -1,10 +1,12 @@
-import { CommandInteraction, EmbedBuilder, InteractionReplyOptions, Message, MessageEditOptions, MessageFlags, MessageReplyOptions } from "discord.js";
+import { EmbedBuilder, InteractionReplyOptions, Message, MessageEditOptions, MessageFlags, MessageReplyOptions } from "discord.js";
+import { isBaseInteraction } from "../functions/functions";
+import { Respondable } from "../types/types";
 import HexToNumber from "../functions/HexToNumber";
 import EmbedData from "../storage/embed";
 import error from "./error";
 
 export default async function responseError(
-  interaction: CommandInteraction | Message,
+  interaction: Respondable,
   log?: string,
   data?: InteractionReplyOptions | MessageReplyOptions,
   isUpdateNeed?: boolean,
@@ -27,19 +29,24 @@ export default async function responseError(
         ]
       };
 
-    if (interaction instanceof CommandInteraction) {
+    if (isBaseInteraction(interaction)) {
       data.flags = MessageFlags.Ephemeral;
-      if (isUpdateNeed)
+      if (isUpdateNeed && "editReply" in interaction)
         return await interaction.editReply(data as InteractionReplyOptions);
 
-      else return await interaction.reply(data as InteractionReplyOptions);
+      else if ("reply" in interaction)
+        return await interaction.reply(data as InteractionReplyOptions);
+
+      return;
     }
 
-    else {
-      if (isUpdateNeed && message) return await message.edit(data as MessageEditOptions);
+    else
+      if (isUpdateNeed && message)
+        return await message.edit(data as MessageEditOptions);
 
-      else return await interaction.reply(data as MessageReplyOptions);
-    }
+      else
+        return await interaction.reply(data as MessageReplyOptions);
+
   } catch (e: any) {
     error(e);
   }

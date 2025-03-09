@@ -14,8 +14,7 @@ const command: CommandType = {
     default_bot_permissions: new PermissionsBitField([
       PermissionFlagsBits.SendMessages,
       PermissionFlagsBits.EmbedLinks
-    ]),
-    dm_permission: true
+    ])
   },
   category: "member",
   aliases: ["h", "commands"],

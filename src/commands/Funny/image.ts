@@ -50,7 +50,7 @@ const command: CommandType = {
             ],
             required: true
           },
-          EphemeralOption
+          EphemeralOption()
         ]
       },
       {
@@ -92,7 +92,7 @@ const command: CommandType = {
             ],
             required: true
           },
-          EphemeralOption
+          EphemeralOption()
         ]
       }
     ]

@@ -35,15 +35,14 @@ export default async (client: DiscordClient, interaction: Interaction) => {
           return;
 
         // Use flags conditionally
-        const
-          hasEphemeralOption = command.data.options?.some(option =>
-            option.name === "ephemeral" ||
-            (option.type === 1 && option.options?.some(subOption => subOption.name === "ephemeral"))
-          ),
-          maxAttempts = 3; // How many tries to defer reply?
-
+        const hasEphemeralOption = command.data.options?.some(option =>
+          option.name === "ephemeral" ||
+          (option.type === 1 && option.options?.some(subOption => subOption.name === "ephemeral"))
+        );
         if (hasEphemeralOption) {
-          let attempts = 0;
+          let
+            attempts = 0,
+            maxAttempts = 3; // How many tries to defer reply?
 
           while (attempts < maxAttempts) {
             try {

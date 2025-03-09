@@ -4,7 +4,6 @@ import error from "../../utils/error";
 
 export default async (client: DiscordClient, interaction: AutocompleteInteraction) => {
   try {
-    const db = client.db!;
     if (!interaction.isAutocomplete())
       return;
 

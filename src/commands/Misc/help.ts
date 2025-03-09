@@ -19,7 +19,7 @@ const command: CommandType = {
       PermissionFlagsBits.EmbedLinks
     ]),
     dm_permission: true,
-    options: [EphemeralOption]
+    options: [EphemeralOption()]
   },
   category: "member",
   aliases: ["h", "commands"],

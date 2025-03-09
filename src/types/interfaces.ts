@@ -49,7 +49,12 @@ export interface CommandType {
     only_slash?: boolean;
     only_message?: boolean;
     run: (client: DiscordClient, interaction: CommandInteraction | Message, args?: string[]) => Promise<any>;
-}
+};
+
+export interface Deletable {
+    deletable?: boolean;
+    delete(): Promise<void>;
+};
 /**
  * @copyright
  * Code by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
