@@ -1,5 +1,14 @@
-export default async function getLinkResponse(url: string) {
+import config from "../../config";
+
+export default async function getLinkResponse(url: string, endpoint?: string) {
   try {
+    if (url && Object.hasOwn(config.api, url))
+      // @ts-ignore
+      url = config.api[url];
+
+    if (endpoint)
+      url += endpoint;
+
     let data = await fetch(url, {
       headers: {
         Authorization: "Basic MDE1NDQ1NTM1NDU0NDU1MzU0RDY6"

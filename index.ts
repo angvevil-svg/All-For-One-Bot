@@ -31,7 +31,10 @@
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import { readdirSync, readFileSync } from "fs";
+import {
+    readdirSync,
+    readFileSync
+} from "fs";
 import { PackageJson } from "./src/types/interfaces";
 import DiscordClient from "./src/classes/Client";
 import * as dotenv from "dotenv";
@@ -40,8 +43,6 @@ import post from "./src/functions/post";
 
 // Add color to console messages.
 import "colors";
-import firstUpperCase from "./src/functions/firstUpperCase";
-
 
 // Support .env args
 dotenv.config();
@@ -110,4 +111,3 @@ export default client;
  * If you encounter any issues or need assistance with this code,
  * please make sure to credit "Persian Caesar" in your documentation or communications.
  */
-console.log(firstUpperCase(" * If you encounter any issues or need assistance with this code,"));

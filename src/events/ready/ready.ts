@@ -1,5 +1,10 @@
-import { ActivityType, REST, Routes, version } from "discord.js";
-import firstUpperCase from "../../functions/firstUpperCase";
+import {
+  ActivityType,
+  REST,
+  Routes,
+  version
+} from "discord.js";
+import firstUpperCase from "../../functions/capitalize";
 import DiscordClient from "../../classes/Client";
 import replaceValues from "../../functions/replaceValues";
 import chooseRandom from "../../functions/chooseRandom";
@@ -103,12 +108,12 @@ export default async (client: DiscordClient) => {
     await Promise.all(
       client.commands.map(async (cmd) => {
         const slashCmd = fetchedCommands.find(c => c.name === cmd.data.name);
-        if (slashCmd) 
+        if (slashCmd)
           client.commands.set(cmd.data.name, {
             ...cmd,
             data: { ...cmd.data, id: slashCmd.id }
           });
-        
+
       })
     );
   } catch (e: any) {

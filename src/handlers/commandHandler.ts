@@ -1,7 +1,7 @@
 import { CommandType } from "../types/interfaces";
 import { readdirSync } from "fs";
-import firstUpperCase from "../functions/firstUpperCase";
 import DiscordClient from "../classes/Client";
+import capitalize from "../functions/capitalize";
 import error from "../utils/error";
 import post from "../functions/post";
 
@@ -10,7 +10,7 @@ export default async (client: DiscordClient) => {
         const commandTypes = ["only_message", "only_slash"] as const;
         commandTypes.forEach(async (type) => {
             await loadCommand(`${process.cwd()}/dist/src/commands`, type, client.commands);
-            post(`${client.commands.filter(a => a[type]).size}`.cyan + ` ${firstUpperCase(type.replace("only_", ""))} Commands Is Loaded!!`.green, "S");
+            post(`${client.commands.filter(a => a[type]).size}`.cyan + ` ${capitalize(type.replace("only_", ""))} Commands Is Loaded!!`.green, "S");
         });
     } catch (e: any) {
         error(e)
@@ -32,7 +32,7 @@ async function loadCommand(dirname: string, type: "only_slash" | "only_message",
 
                 else {
                     post(
-                        `${firstUpperCase(type.replace("only_", ""))} Command Not Loaded: ${file}`,
+                        `${capitalize(type.replace("only_", ""))} Command Not Loaded: ${file}`,
                         "E",
                         "red",
                         "red"

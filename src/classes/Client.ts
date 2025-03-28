@@ -1,4 +1,9 @@
-import { Client, ClientOptions, Collection, Partials } from "discord.js";
+import {
+    Client,
+    ClientOptions,
+    Collection,
+    Partials
+} from "discord.js";
 import { CommandType } from "../types/interfaces";
 import Database from "./Database";
 import config from "../../config";

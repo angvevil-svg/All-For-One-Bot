@@ -1,4 +1,8 @@
-import { ChannelType, Guild, TextChannel } from "discord.js";
+import {
+  ChannelType,
+  Guild,
+  TextChannel
+} from "discord.js";
 
 export default async function GetInvite(guild: Guild) {
   const inviteData = {

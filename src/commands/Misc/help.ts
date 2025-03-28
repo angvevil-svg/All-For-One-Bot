@@ -1,4 +1,9 @@
-import { ApplicationCommandType, EmbedBuilder, PermissionFlagsBits, PermissionsBitField } from "discord.js";
+import {
+  ApplicationCommandType,
+  EmbedBuilder,
+  PermissionFlagsBits,
+  PermissionsBitField
+} from "discord.js";
 import { EphemeralOption } from "../../storage/contants";
 import { CommandType } from "../../types/interfaces";
 import DiscordClient from "../../classes/Client";

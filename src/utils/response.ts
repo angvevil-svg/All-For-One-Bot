@@ -1,4 +1,7 @@
-import { InteractionReplyOptions, MessageReplyOptions } from "discord.js";
+import {
+  InteractionReplyOptions,
+  MessageReplyOptions
+} from "discord.js";
 import { isBaseInteraction } from "../functions/functions";
 import { Respondable } from "../types/types";
 import error from "./error";

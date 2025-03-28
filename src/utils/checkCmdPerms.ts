@@ -1,4 +1,14 @@
-import { ApplicationCommandOptionType, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, GuildMember, Message, MessageFlags, PermissionsBitField } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  CommandInteraction,
+  CommandInteractionOptionResolver,
+  EmbedBuilder,
+  GuildChannel,
+  GuildMember,
+  Message,
+  MessageFlags,
+  PermissionsBitField
+} from "discord.js";
 import { CommandType } from "../types/interfaces";
 import error from "./error";
 

@@ -1,4 +1,7 @@
-import { CommandInteraction, Message } from "discord.js";
+import {
+  CommandInteraction,
+  Message
+} from "discord.js";
 import error from "./error";
 
 export default function getAuthor(interaction: CommandInteraction | Message) {

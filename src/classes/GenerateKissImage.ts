@@ -1,4 +1,9 @@
-import { Canvas, createCanvas, loadImage, SKRSContext2D } from "@napi-rs/canvas";
+import {
+  Canvas,
+  createCanvas,
+  loadImage,
+  SKRSContext2D
+} from "@napi-rs/canvas";
 import { Jimp } from "jimp";
 import error from "../utils/error";
 

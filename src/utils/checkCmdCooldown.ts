@@ -1,4 +1,10 @@
-import { Collection, CommandInteraction, EmbedBuilder, Message, MessageFlags } from "discord.js";
+import {
+  Collection,
+  CommandInteraction,
+  EmbedBuilder,
+  Message,
+  MessageFlags
+} from "discord.js";
 import { CommandType } from "../types/interfaces";
 import client from "../../index";
 import error from "./error";

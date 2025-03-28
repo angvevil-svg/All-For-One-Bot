@@ -1,4 +1,8 @@
-import { ChannelType, Message, TextChannel } from "discord.js";
+import {
+    ChannelType,
+    Message,
+    TextChannel
+} from "discord.js";
 import checkCmdCooldown from "../../utils/checkCmdCooldown";
 import checkCmdPerms from "../../utils/checkCmdPerms";
 import DiscordClient from "../../classes/Client";

@@ -1,5 +1,17 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, CommandInteraction, Guild, Message, PermissionsBitField, TextChannel } from "discord.js";
-import { Categoris, CommandOptions } from "./types";
+import {
+    ApplicationCommandOptionType,
+    ApplicationCommandType,
+    ChannelType,
+    CommandInteraction,
+    Guild,
+    Message,
+    PermissionsBitField,
+    TextChannel
+} from "discord.js";
+import {
+    Categoris,
+    CommandOptions
+} from "./types";
 import DiscordClient from "../classes/Client";
 
 export interface SendGuildAlert {

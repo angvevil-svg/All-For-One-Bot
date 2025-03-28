@@ -1,4 +1,4 @@
-export default function firstUpperCase(string: string) {
+export default function capitalize(string: string) {
   let newString = "";
   string
     .split(" ")

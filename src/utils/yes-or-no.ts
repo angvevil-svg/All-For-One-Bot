@@ -1,6 +1,12 @@
-import { ButtonInteraction, CacheType, CommandInteraction, ComponentType, Message } from "discord.js";
-import error from "./error";
+import {
+  ButtonInteraction,
+  CacheType,
+  CommandInteraction,
+  ComponentType,
+  Message
+} from "discord.js";
 import responseDelete from "./responseDelete";
+import error from "./error";
 
 export default async function yesOrNo(
   interaction: CommandInteraction | Message,
