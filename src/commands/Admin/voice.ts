@@ -6,6 +6,11 @@ import {
   PermissionsBitField,
   VoiceChannel
 } from "discord.js";
+import {
+  createConfirmationMessage,
+  getOption,
+  getUser
+} from "../../functions/functions";
 import { VoiceCmdOptions } from "../../storage/contants";
 import { CommandType } from "../../types/interfaces";
 import responseError from "../../utils/responseError";
@@ -15,7 +20,6 @@ import response from "../../utils/response";
 import yesOrNo from "../../utils/yes-or-no";
 import config from "../../../config";
 import error from "../../utils/error";
-import { createConfirmationMessage, getOption, getUser } from "../../functions/functions";
 
 const command: CommandType = {
   data: {
@@ -38,7 +42,6 @@ const command: CommandType = {
       const guild = interaction.guild,
         issuer = interaction.member as GuildMember,
         botMember = await guild.members.fetchMe(),
-        // تابع بررسی سلسله مراتب: issuer و botMember باید از target بالاتر باشند
         canManage = (target: GuildMember): boolean => {
           return issuer.roles.highest.position > target.roles.highest.position &&
             botMember.roles.highest.position > target.roles.highest.position;
@@ -47,17 +50,17 @@ const command: CommandType = {
 
       switch (subcommand) {
         case "mute": {
-          // دریافت پارامترهای فردی یا گروهی
           const user = getUser(interaction, getOption<any>(interaction, "getUser", "user", 1, args)!),
             doFor = getOption<string>(interaction, "getString", "do-for", 2, args);
 
-          // حالت فردی:
           if (user) {
             const targetMember = guild.members.cache.get(user.id);
             if (!targetMember)
               return await responseError(interaction, "❌ کاربر یافت نشد.");
+
             if (!targetMember.voice.channel)
               return await responseError(interaction, "❌ این کاربر در هیچ چنل ویسی حضور ندارد.");
+
             if (!canManage(targetMember))
               return await responseError(interaction, "❌ نمی‌توانید کاربری را میوت کنید که نقشش بالاتر یا مساوی شما یا من است.");
 
@@ -75,6 +78,7 @@ const command: CommandType = {
                     { name: "👮 ادمین:", value: `**${issuer.user.tag} (\`${issuer.user.id}\`)**` },
                     { name: "👤 کاربر میوت شده:", value: `**${user.username} (\`${user.id}\`)**` }
                   ]);
+                  
                 return await btn.editReply({ embeds: [embed], components: [] });
               } catch (e: any) {
                 return await responseError(btn, `❌ عملیات میوت انجام نشد!\n${e.message}`, undefined, true);

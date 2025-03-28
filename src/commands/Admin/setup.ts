@@ -15,8 +15,8 @@ import HexToNumber from "../../functions/HexToNumber";
 import getAuthor from "../../utils/getAuthor";
 import EmbedData from "../../storage/embed";
 import response from "../../utils/response";
-import error from "../../utils/error";
 import config from "../../../config";
+import error from "../../utils/error";
 
 const command: CommandType = {
   data: {

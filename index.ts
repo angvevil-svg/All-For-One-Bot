@@ -40,6 +40,7 @@ import post from "./src/functions/post";
 
 // Add color to console messages.
 import "colors";
+import firstUpperCase from "./src/functions/firstUpperCase";
 
 
 // Support .env args
@@ -109,3 +110,4 @@ export default client;
  * If you encounter any issues or need assistance with this code,
  * please make sure to credit "Persian Caesar" in your documentation or communications.
  */
+console.log(firstUpperCase(" * If you encounter any issues or need assistance with this code,"));

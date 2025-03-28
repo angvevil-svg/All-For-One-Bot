@@ -1,5 +1,15 @@
 export default function firstUpperCase(string: string) {
-  return `${string[0].toUpperCase()}${string.slice(1).toLowerCase()}`;
+  let newString = "";
+  string
+    .split(" ")
+    .forEach(str => {
+      if (str.length === 0)
+        return newString += " ";
+
+      return newString += `${str[0].toUpperCase()}${str.slice(1).toLowerCase()} `;
+    });
+
+  return newString;
 }
 /**
  * @copyright

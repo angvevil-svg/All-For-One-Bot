@@ -1,4 +1,17 @@
-import { ActionRowBuilder, BaseInteraction, ButtonBuilder, ButtonStyle, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, Guild, GuildMember, Message, User } from "discord.js";
+import {
+  ActionRowBuilder,
+  BaseInteraction,
+  ButtonBuilder,
+  ButtonStyle,
+  CommandInteraction,
+  CommandInteractionOptionResolver,
+  EmbedBuilder,
+  Guild,
+  GuildChannel,
+  GuildMember,
+  Message,
+  User
+} from "discord.js";
 import { Respondable } from "../types/types";
 import HexToNumber from "./HexToNumber";
 import EmbedData from "../storage/embed";
@@ -64,6 +77,14 @@ export function getOption<T>(
     return interaction.options[method](optionName) as T;
 
   return args && args[fallbackIndex!] ? (args[fallbackIndex!] as unknown as T) : null;
+}
+
+export function getChannel(interaction: Respondable, optionName?: string, fallbackIndex?: number, args?: string[]) {
+  if (interaction instanceof CommandInteraction && interaction.options instanceof CommandInteractionOptionResolver)
+    // @ts-ignore
+    interaction.options.getChannel(optionName)
+
+  return args && args[fallbackIndex!] ? (interaction.guild?.channels.cache.get(args[fallbackIndex!] as string) as GuildChannel) : null
 }
 
 export function getUser(interaction: Respondable, user: User | string) {

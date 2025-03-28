@@ -3,13 +3,13 @@ import {
   Channel,
   ChannelType,
   EmbedBuilder,
-  GuildChannel,
   Message,
   PermissionsBitField,
   TextChannel
 } from "discord.js";
 import {
   createConfirmationMessage,
+  getChannel,
   getOption
 } from "../../functions/functions";
 import { ChannelCmdOptions } from "../../storage/contants";
@@ -55,8 +55,9 @@ const command: CommandType = {
           if (!name)
             return await responseError(interaction, "❌ لطفاً نام چنل را وارد کنید.");
 
-          const confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که یک چنل به نام **${name}** بسازید؟`);
-          const sentMessage = await response(interaction, confirmMsg);
+          const
+            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که یک چنل به نام **${name}** بسازید؟`),
+            sentMessage = await response(interaction, confirmMsg);
 
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
@@ -86,7 +87,7 @@ const command: CommandType = {
 
         case "slowmode": {
           const
-            channel = getOption<GuildChannel>(interaction, "getChannel", "channel", 1, args) as TextChannel,
+            channel = getChannel(interaction, "channel", 1, args) as TextChannel,
             duration = getOption<number>(interaction, "getInteger", "duration", 2, args);
 
           if (!channel || !duration)
@@ -110,7 +111,7 @@ const command: CommandType = {
                   { name: "چنل", value: `**${channel.name}**` },
                   { name: "مدت زمان", value: `**${duration} ثانیه**` }
                 ]);
-                
+
               return await btn.editReply({ embeds: [embed], components: [] });
             } catch (e: any) {
               return await responseError(btn, `❌ تنظیم slowmode انجام نشد!\n${e.message}`, undefined, true);
@@ -119,7 +120,7 @@ const command: CommandType = {
         }
 
         case "clone": {
-          const channel = getOption<GuildChannel>(interaction, "getChannel", "channel", 1, args);
+          const channel = getChannel(interaction, "channel", 1, args) as TextChannel;
           if (!channel)
             return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
 
@@ -148,7 +149,7 @@ const command: CommandType = {
         }
 
         case "edit": {
-          const channel = getOption<GuildChannel>(interaction, "getChannel", "channel", 1, args);
+          const channel = getChannel(interaction, "channel", 1, args) as TextChannel;
           if (!channel)
             return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
 
@@ -189,7 +190,7 @@ const command: CommandType = {
         }
 
         case "delete": {
-          const channel = getOption<GuildChannel>(interaction, "getChannel", "channel", 1, args);
+          const channel = getChannel(interaction, "channel", 1, args) as TextChannel;
           if (!channel)
             return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
 
@@ -215,7 +216,7 @@ const command: CommandType = {
 
         case "purge": {
           const
-            channel = getOption<GuildChannel>(interaction, "getChannel", "channel", 1, args) as TextChannel,
+            channel = getChannel(interaction, "channel", 1, args) as TextChannel,
             amount = getOption<number>(interaction, "getInteger", "amount", 2, args);
 
           if (!channel || !amount)
@@ -245,7 +246,7 @@ const command: CommandType = {
         }
 
         case "lock": {
-          const channel = getOption<GuildChannel>(interaction, "getChannel", "channel", 1, args);
+          const channel = getChannel(interaction, "channel", 1, args) as TextChannel;
           if (!channel)
             return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
 

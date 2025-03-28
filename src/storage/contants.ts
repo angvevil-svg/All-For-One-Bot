@@ -2,6 +2,26 @@ import { ApplicationCommandOptionType, ChannelType, PermissionsBitField } from "
 import { CommandOptions } from "../types/types";
 import { CommandOption } from "../types/interfaces";
 
+const PurgeTypes = [
+  "Bot Messages",
+  "User Messages",
+  "Webhook Messages",
+  "Messages with texts",
+  "Messages with embeds",
+  "Messages with attachments",
+  "Messages with links",
+  "Messages with mentions",
+  "Messages with reactions",
+  "Messages with emojis",
+  "Suspicious Members",
+  "No Role Members",
+  "No Avatar Members",
+  "Messages starts with input",
+  "Messages includes input",
+  "Messages that come before input MessageID",
+  "Messages that come after input MessageID",
+];
+
 // Single options
 export const
   EphemeralOption = function (required = false): CommandOption {
@@ -46,7 +66,7 @@ export const
       required
     };
   },
-  FromHbeOption = function (required = false, name = "from", description = "این ابزار روی عمل کنه ممبر ها (یا ربات یا انسان یا همه)"): CommandOption {
+  HbeOption = function (required = false, name = "hbe", description = "این ابزار روی عمل کنه ممبر ها (یا ربات یا انسان یا همه)"): CommandOption {
     return {
       name,
       description,
@@ -76,11 +96,69 @@ export const
       required
     };
   },
-  ForAllOption = function (required = false): CommandOption {
+  UnDoOption = function (required = false, name = "undo", description = "انچام خلاف فعالیت."): CommandOption {
     return {
-      name: "for-all",
-      description: "انجام فعالیت روی همه ممبر ها.",
+      name,
+      description,
       type: ApplicationCommandOptionType.Boolean,
+      required
+    };
+  },
+  ChannelOption = function (required = false, name = "channel", description = "چنل وارد کنید.", channel_types?: ChannelType[]): CommandOption {
+    let data: any = {
+      name,
+      description,
+      type: ApplicationCommandOptionType.Channel,
+      required
+    };
+    if (channel_types)
+      data.channel_types = channel_types;
+
+    return data;
+  },
+  AllChannelsOption = function (required = false, name = "do-for-channels", description = "اعمال روی همه چنل ها."): CommandOption {
+    return {
+      name,
+      description,
+      type: ApplicationCommandOptionType.Boolean,
+      required
+    };
+  },
+  TargetOption = function (required = false, name = "target", description = "انتخاب گروه هدف (everyone, bots, humans, roles, users)"): CommandOption {
+    return {
+      name,
+      description,
+      type: ApplicationCommandOptionType.String,
+      required,
+      choices: [
+        {
+          name: "Everyone",
+          value: "everyone"
+        },
+        {
+          name: "Bots",
+          value: "bots"
+        },
+        {
+          name: "Humans",
+          value: "humans"
+        },
+        {
+          name: "Roles",
+          value: "roles"
+        },
+        {
+          name: "Users",
+          value: "users"
+        }
+      ]
+    };
+  },
+  IdsOption = function (required = false, name = "ids", description = "آی‌دی‌های جداشده با کاما (برای roles یا users)"): CommandOption {
+    return {
+      name,
+      description,
+      type: ApplicationCommandOptionType.String,
       required
     };
   };
@@ -102,13 +180,9 @@ export const
       ]),
       options: [
         UserOption(),
-        FromHbeOption(false, "do-for"),
-        {
-          name: "undo",
-          description: "آن بن یوزر در سرور.",
-          type: ApplicationCommandOptionType.Boolean,
-          required: false
-        },
+        RoleOption(),
+        HbeOption(),
+        UnDoOption(false, "آن بن کردن."),
         ReasonOption(),
         {
           name: "delete-messages",
@@ -162,7 +236,8 @@ export const
       ]),
       options: [
         UserOption(),
-        FromHbeOption(false, "do-for"),
+        RoleOption(),
+        HbeOption(),
         ReasonOption(),
         EphemeralOption()
       ]
@@ -179,13 +254,9 @@ export const
       ]),
       options: [
         UserOption(),
-        FromHbeOption(false, "do-for"),
-        {
-          name: "undo",
-          description: "باز کردن قفل یوزر در سرور.",
-          type: ApplicationCommandOptionType.Boolean,
-          required: false
-        },
+        RoleOption(),
+        HbeOption(),
+        UnDoOption(false, "آن تایم اوت."),
         ReasonOption(),
         TimeOption(),
         EphemeralOption()
@@ -212,7 +283,8 @@ export const
       ]),
       options: [
         UserOption(),
-        FromHbeOption(false, "do-for"),
+        RoleOption(),
+        HbeOption(),
         ReasonOption(),
         EphemeralOption()
       ]
@@ -229,7 +301,8 @@ export const
       ]),
       options: [
         UserOption(),
-        ForAllOption(),
+        RoleOption(),
+        HbeOption(),
         {
           name: "input",
           description: "نیک نیم خود را وارد کنید.",
@@ -256,13 +329,9 @@ export const
       ]),
       options: [
         UserOption(),
-        ForAllOption(),
-        {
-          name: "undo",
-          description: "باز کردن صدای ممبر در ویس.",
-          type: ApplicationCommandOptionType.Boolean,
-          required: false
-        },
+        RoleOption(),
+        HbeOption(),
+        UnDoOption(false, "آن میوت کردن."),
         ReasonOption(),
         TimeOption(),
         EphemeralOption()
@@ -280,13 +349,9 @@ export const
       ]),
       options: [
         UserOption(),
-        ForAllOption(),
-        {
-          name: "undo",
-          description: "باز کردن شنوایی ممبر در ویس.",
-          type: ApplicationCommandOptionType.Boolean,
-          required: false
-        },
+        RoleOption(),
+        HbeOption(),
+        UnDoOption(false, "آن دیف کردن."),
         ReasonOption(),
         TimeOption(),
         EphemeralOption()
@@ -304,7 +369,8 @@ export const
       ]),
       options: [
         UserOption(),
-        ForAllOption(),
+        RoleOption(),
+        HbeOption(),
         {
           name: "to",
           description: "ویس چنلی را انتخاب کنید.",
@@ -328,13 +394,9 @@ export const
       ]),
       options: [
         UserOption(),
-        ForAllOption(),
-        {
-          name: "undo",
-          description: "پایین آوردن ممبر از استیج.",
-          type: ApplicationCommandOptionType.Boolean,
-          required: false
-        },
+        RoleOption(),
+        HbeOption(),
+        UnDoOption(false, "پایین بردن از استیج."),
         ReasonOption(),
         EphemeralOption()
       ]
@@ -351,7 +413,8 @@ export const
       ]),
       options: [
         UserOption(),
-        ForAllOption(),
+        RoleOption(),
+        HbeOption(),
         ReasonOption(),
         EphemeralOption()
       ]
@@ -412,9 +475,8 @@ export const
         },
         {
           name: "position",
-          description: "رنگ رول جدید را وارد کنید.",
-          type: ApplicationCommandOptionType.String,
-          autocomplete: true,
+          description: "بالای چه رول ساخته شود؟ (به شرط بالا بودن رول ربات)",
+          type: ApplicationCommandOptionType.Role,
           required: false
         },
         ReasonOption(),
@@ -449,9 +511,9 @@ export const
       ]),
       options: [
         RoleOption(true),
-        UserOption(),
-        RoleOption(false, "to-everyone-have", "اضافه کردن رول به تمامی کسایی این رول را دارند."),
-        FromHbeOption(false, "to"),
+        RoleOption(false, "to-role", "اضافه کردن رول به تمامی کسایی این رول را دارند."),
+        HbeOption(false, "to-hbe"),
+        UserOption(false, "to-user"),
         ReasonOption(),
         EphemeralOption()
       ]
@@ -470,7 +532,7 @@ export const
         UserOption(true, "from", "کپی رول های این ممبر."),
         UserOption(false, "to-user", "کپی رول های ممبر به این ممبر."),
         RoleOption(false, "to-everyone-have", "کپی کردن رول به تمامی کسایی این رول را دارند."),
-        FromHbeOption(false, "to"),
+        HbeOption(false, "to-hbe"),
         ReasonOption(),
         EphemeralOption()
       ]
@@ -487,6 +549,7 @@ export const
       ]),
       options: [
         RoleOption(true),
+        UnDoOption(false,"delete-all-roles","پاک کردن رول های سرور."),
         ReasonOption(),
         EphemeralOption()
       ]
@@ -534,9 +597,8 @@ export const
         },
         {
           name: "position",
-          description: "رنگ رول جدید را وارد کنید.",
-          type: ApplicationCommandOptionType.String,
-          autocomplete: true,
+          description: "بالای چه رولی برده شود؟ (به شرط بالا بودن رول ربات).",
+          type: ApplicationCommandOptionType.Role,
           required: false
         },
         ReasonOption(),
@@ -557,7 +619,7 @@ export const
         RoleOption(true),
         UserOption(false, "from-user", "حذف رول از ممبر خاص."),
         RoleOption(false, "from-everyone-have", "اضافه کردن رول به تمامی کسایی این رول را دارند."),
-        FromHbeOption(false, "from", "حذف رول از ممبر ها (یا ربات یا انسان یا همه)"),
+        HbeOption(false, "from-hbe", "حذف رول از ممبر ها (یا ربات یا انسان یا همه)"),
         ReasonOption(),
         EphemeralOption()
       ]
@@ -575,10 +637,10 @@ export const
           name: "name",
           description: "نام چنل جدید",
           type: ApplicationCommandOptionType.String,
-          required: true
+          required: false
         },
         {
-          name: "type", description: "نوع چنل (متن یا ویس)",
+          name: "type", description: "نوع چنل",
           type: ApplicationCommandOptionType.String,
           required: false,
           choices: Object.keys(ChannelType).filter(a => a.includes("Guild")).map(a => ({
@@ -586,18 +648,20 @@ export const
             value: a
           }))
         },
-        {
-          name: "category", description: "دسته‌بندی چنل",
-          type: ApplicationCommandOptionType.Channel,
-          channel_types: [ChannelType.GuildCategory],
-          required: false
-        },
+        ChannelOption(false, "category", "دسته‌بندی چنل", [ChannelType.GuildCategory]),
         {
           name: "nsfw",
           description: "آیا چنل NSFW باشد؟",
           type: ApplicationCommandOptionType.Boolean,
           required: false
-        }
+        },
+        {
+          name: "topic",
+          description: "تاپیک یا توضیحات چنل (برای چنل های متنی)",
+          type: ApplicationCommandOptionType.String,
+          required: false
+        },
+        ReasonOption()
       ]
     },
     {
@@ -605,19 +669,15 @@ export const
       description: "تنظیم slowmode برای یک چنل متنی.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        {
-          name: "channel",
-          description: "چنل متنی مورد نظر",
-          type: ApplicationCommandOptionType.Channel,
-          channel_types: [ChannelType.GuildText],
-          required: true
-        },
+        ChannelOption(false, undefined, undefined, [ChannelType.GuildText]),
+        AllChannelsOption(),
         {
           name: "duration",
           description: "مدت زمان slowmode (ثانیه)",
           type: ApplicationCommandOptionType.Integer,
           required: true
-        }
+        },
+        ReasonOption()
       ]
     },
     {
@@ -625,12 +685,8 @@ export const
       description: "کلون کردن یک چنل موجود.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        {
-          name: "channel",
-          description: "چنل مورد نظر",
-          type: ApplicationCommandOptionType.Channel,
-          required: true
-        }
+        ChannelOption(true),
+        ReasonOption()
       ]
     },
     {
@@ -638,10 +694,27 @@ export const
       description: "ویرایش تنظیمات یک چنل.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        { name: "channel", description: "چنل مورد نظر", type: ApplicationCommandOptionType.Channel, required: true },
-        { name: "name", description: "نام جدید چنل", type: ApplicationCommandOptionType.String, required: false },
-        { name: "topic", description: "موضوع چنل (برای چنل‌های متنی)", type: ApplicationCommandOptionType.String, required: false },
-        { name: "nsfw", description: "تنظیم NSFW", type: ApplicationCommandOptionType.Boolean, required: false }
+        ChannelOption(true),
+        {
+          name: "name",
+          description: "نام جدید چنل",
+          type: ApplicationCommandOptionType.String,
+          required: false
+        },
+        {
+          name: "topic",
+          description: "موضوع چنل (برای چنل‌های متنی)",
+          type: ApplicationCommandOptionType.String,
+          required: false
+        },
+        ChannelOption(false, "category", "دسته‌بندی چنل", [ChannelType.GuildCategory]),
+        {
+          name: "nsfw",
+          description: "تنظیم NSFW",
+          type: ApplicationCommandOptionType.Boolean,
+          required: false
+        },
+        ReasonOption()
       ]
     },
     {
@@ -649,7 +722,8 @@ export const
       description: "حذف یک چنل از سرور.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        { name: "channel", description: "چنل مورد نظر", type: ApplicationCommandOptionType.Channel, required: true }
+        ChannelOption(true),
+        ReasonOption()
       ]
     },
     {
@@ -657,8 +731,22 @@ export const
       description: "پاکسازی پیام‌ها در یک چنل.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        { name: "channel", description: "چنل متنی مورد نظر", type: ApplicationCommandOptionType.Channel, channel_types: [ChannelType.GuildText], required: true },
-        { name: "amount", description: "تعداد پیام‌ها برای پاکسازی", type: ApplicationCommandOptionType.Integer, required: true }
+        ChannelOption(),
+        {
+          name: "amount",
+          description: "تعداد پیام‌ها برای پاکسازی",
+          type: ApplicationCommandOptionType.Integer,
+          required: false
+        },
+        ReasonOption(),
+        IdsOption(),
+        {
+          name: "type",
+          description: "نوع پیام هایی که میخواهید پاک بشوند را انتخاب کنید.",
+          type: ApplicationCommandOptionType.String,
+          choices: PurgeTypes.map(a => ({ name: a, value: a })),
+          required: false
+        }
       ]
     },
     {
@@ -666,24 +754,11 @@ export const
       description: "قفل یا باز کردن چنل برای دسترسی‌ها.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        { name: "channel", description: "چنل مورد نظر", type: ApplicationCommandOptionType.Channel, required: true },
-        {
-          name: "action", description: "انتخاب قفل (lock) یا باز (unlock)", type: ApplicationCommandOptionType.String, required: true, choices: [
-            { name: "lock", value: "lock" },
-            { name: "unlock", value: "unlock" }
-          ]
-        },
-        {
-          name: "target", description: "انتخاب گروه هدف (everyone, bots, humans, roles, users)", type: ApplicationCommandOptionType.String, required: true, choices: [
-            { name: "everyone", value: "everyone" },
-            { name: "bots", value: "bots" },
-            { name: "humans", value: "humans" },
-            { name: "roles", value: "roles" },
-            { name: "users", value: "users" }
-          ]
-        },
-        { name: "ids", description: "آی‌دی‌های جداشده با کاما (برای roles یا users)", type: ApplicationCommandOptionType.String, required: false },
-        { name: "reason", description: "دلیل تغییر", type: ApplicationCommandOptionType.String, required: false }
+        ChannelOption(true),
+        TargetOption(true),
+        UnDoOption(false, "action", "قفل یا باز کردن چنل."),
+        IdsOption(),
+        ReasonOption()
       ]
     }
   ];
