@@ -324,9 +324,11 @@ const command: CommandType = {
               embed.addFields({ name: cmd.name, value: cmd.description });
             });
             return await response(interaction, { embeds: [embed], ephemeral: true });
-          } else {
-            return await responseError(interaction, "❌ ساب‌کامند نامعتبر است. لطفاً از گزینه‌های موجود استفاده کنید.");
           }
+
+          else
+            return await responseError(interaction, "❌ ساب‌کامند نامعتبر است. لطفاً از گزینه‌های موجود استفاده کنید.");
+
         }
       }
     } catch (e: any) {

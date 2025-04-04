@@ -1,11 +1,9 @@
 import { QuickDB } from "quick.db";
-import DiscordClient from "../classes/Client";
-import Database from "../classes/Database";
 import config from "../../config";
-import error from "../utils/error";
+import error from "./error";
 import post from "../functions/post";
 
-export default async (client: DiscordClient) => {
+export default async () => {
     try {
         let driver: any;
         switch (config.source.database.type) {
@@ -40,11 +38,12 @@ export default async (client: DiscordClient) => {
 
         const db = new QuickDB({ driver });
         await db.init();
-        client.db = new Database(db);
         post(
             `Database Is Successfully Activated!! (Type: ${config.source.database.type.toLocaleUpperCase()})`,
             "S"
         );
+        // client.db = new Database(db);
+        return db;
     } catch (e: any) {
         post(`Database Doesn't Work!!`.red, "E", "red", "red")
         error(e);

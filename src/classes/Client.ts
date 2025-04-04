@@ -17,23 +17,9 @@ export default class DiscordClient extends Client {
         if (!options)
             options = {
                 intents: [
-                    "AutoModerationConfiguration",
-                    "AutoModerationExecution",
-                    "DirectMessagePolls",
-                    "DirectMessageReactions",
-                    "DirectMessageTyping",
-                    "DirectMessages",
                     "GuildBans",
-                    "GuildEmojisAndStickers",
-                    "GuildInvites",
                     "GuildMembers",
-                    "GuildMessagePolls",
-                    "GuildMessageReactions",
-                    "GuildMessageTyping",
                     "GuildMessages",
-                    "GuildModeration",
-                    "GuildScheduledEvents",
-                    "GuildVoiceStates",
                     "GuildWebhooks",
                     "Guilds",
                     "MessageContent"
@@ -41,10 +27,7 @@ export default class DiscordClient extends Client {
                 partials: [
                     Partials.Channel,
                     Partials.GuildMember,
-                    Partials.GuildScheduledEvent,
                     Partials.Message,
-                    Partials.Reaction,
-                    Partials.ThreadMember,
                     Partials.User
                 ],
                 allowedMentions: {
@@ -57,7 +40,15 @@ export default class DiscordClient extends Client {
         this.cooldowns = new Collection();
         this.config = config;
         this.token = this.config.discord.token;
-        this.db = null;
+        (async () => {
+            const
+                databaseFile = await import("../utils/database"),
+                loadDB = databaseFile.default || databaseFile,
+                database = await loadDB();
+
+            if (database)
+                this.db = new Database(database);
+        })()
     }
 }
 /**
