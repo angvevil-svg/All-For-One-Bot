@@ -1,6 +1,7 @@
 import { isBaseInteraction } from "../functions/functions";
 import { Respondable } from "../types/types";
 import { Message } from "discord.js";
+import repeatAction from "./repeatAction";
 import error from "./error";
 
 export default async function responseDelete(
@@ -10,7 +11,7 @@ export default async function responseDelete(
   try {
     if (isBaseInteraction(interaction)) {
       if ("deleteReply" in interaction)
-        return await interaction.deleteReply().catch(e => e);
+        return await repeatAction(async () => await interaction.deleteReply().catch(e => e));
     }
 
     else {

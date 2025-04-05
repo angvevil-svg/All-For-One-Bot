@@ -6,6 +6,7 @@ import checkCmdCooldown from "../../utils/checkCmdCooldown";
 import checkCmdPerms from "../../utils/checkCmdPerms";
 import DiscordClient from "../../classes/Client";
 import error from "../../utils/error";
+import repeatAction from "../../utils/repeatAction";
 
 export default async (client: DiscordClient, interaction: Interaction) => {
   try {
@@ -42,25 +43,13 @@ export default async (client: DiscordClient, interaction: Interaction) => {
           option.name === "ephemeral" ||
           (option.type === 1 && option.options?.some(subOption => subOption.name === "ephemeral"))
         );
-        if (hasEphemeralOption) {
-          let
-            attempts = 0,
-            maxAttempts = 3; // How many tries to defer reply?
-
-          while (attempts < maxAttempts) {
-            try {
-              await interaction.deferReply({
-                flags: MessageFlags.Ephemeral,
-                withResponse: true
-              });
-              break;
-            } catch (e: any) {
-              attempts++;
-              if (attempts === maxAttempts)
-                error(e);
-            }
-          }
-        }
+        if (hasEphemeralOption) 
+          await repeatAction(async () => {
+            return await interaction.deferReply({
+              flags: MessageFlags.Ephemeral,
+              withResponse: true
+            });
+          }) // 3 tries to defer reply
 
         await db.add("totalCommandsUsed", 1);
         return await command.run(client, interaction);

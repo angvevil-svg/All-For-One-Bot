@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import { isBaseInteraction } from "../functions/functions";
 import { Respondable } from "../types/types";
+import repeatAction from "./repeatAction";
 import HexToNumber from "../functions/HexToNumber";
 import EmbedData from "../storage/embed";
 import error from "./error";
@@ -39,20 +40,20 @@ export default async function responseError(
     if (isBaseInteraction(interaction)) {
       data.flags = MessageFlags.Ephemeral;
       if (isUpdateNeed && "editReply" in interaction)
-        return await interaction.editReply(data as InteractionReplyOptions);
+        return await repeatAction(async () => await interaction.editReply(data as InteractionReplyOptions))
 
       else if ("reply" in interaction)
-        return await interaction.reply(data as InteractionReplyOptions);
+        return await repeatAction(async () => await interaction.reply(data as InteractionReplyOptions));
 
       return;
     }
 
     else
       if (isUpdateNeed && message)
-        return await message.edit(data as MessageEditOptions);
+        return await repeatAction(async () => await message.edit(data as MessageEditOptions));
 
       else
-        return await interaction.reply(data as MessageReplyOptions);
+        return await repeatAction(async () => await interaction.reply(data as MessageReplyOptions));
 
   } catch (e: any) {
     error(e);

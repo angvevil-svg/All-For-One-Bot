@@ -116,13 +116,44 @@ export const
 
     return data;
   },
-  AllChannelsOption = function (required = false, name = "do-for-channels", description = "اعمال روی همه چنل ها."): CommandOption {
-    return {
-      name,
-      description,
-      type: ApplicationCommandOptionType.Boolean,
-      required
-    };
+  AllChannelsOption = function (required = false, name = "do-for-channels", description = "اعمال روی همه چنل ها.", custom = false): CommandOption {
+    if (custom)
+      return {
+        name,
+        description,
+        type: ApplicationCommandOptionType.String,
+        choices: [
+          {
+            name: "Only NsfwCHs",
+            value: "nsfw"
+          },
+          {
+            name: "Only TextCHs",
+            value: "text"
+          },
+          {
+            name: "Only VoiceCHs",
+            value: "voice"
+          },
+          {
+            name: "All CHs",
+            value: "all"
+          },
+          {
+            name: "Only ForumCHs",
+            value: "forum"
+          }
+        ],
+        required
+      };
+
+    else
+      return {
+        name,
+        description,
+        type: ApplicationCommandOptionType.Boolean,
+        required
+      };
   },
   TargetOption = function (required = false, name = "target", description = "انتخاب گروه هدف (everyone, bots, humans, roles, users)"): CommandOption {
     return {
@@ -549,7 +580,7 @@ export const
       ]),
       options: [
         RoleOption(true),
-        UnDoOption(false,"delete-all-roles","پاک کردن رول های سرور."),
+        UnDoOption(false, "delete-all-roles", "پاک کردن رول های سرور."),
         ReasonOption(),
         EphemeralOption()
       ]
@@ -714,6 +745,7 @@ export const
           type: ApplicationCommandOptionType.Boolean,
           required: false
         },
+        AllChannelsOption(false, "do-for", undefined, true),
         ReasonOption()
       ]
     },

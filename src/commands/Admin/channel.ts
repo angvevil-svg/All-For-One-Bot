@@ -3,9 +3,13 @@ import {
   Channel,
   ChannelType,
   EmbedBuilder,
+  ForumChannel,
+  GuildChannel,
+  GuildChannelEditOptions,
   Message,
   PermissionsBitField,
-  TextChannel
+  TextChannel,
+  VoiceChannel
 } from "discord.js";
 import {
   createConfirmationMessage,
@@ -50,7 +54,9 @@ const command: CommandType = {
             name = getOption<string>(interaction, "getString", "name", 1, args),
             typeStr = getOption<string>(interaction, "getString", "type", 2, args) || "GuildText",
             category = getOption<Channel>(interaction, "getChannel", "category", 3, args),
-            nsfw = getOption<boolean>(interaction, "getBoolean", "nsfw", 4, args) || false;
+            nsfw = getOption<boolean>(interaction, "getBoolean", "nsfw", 4, args) || false,
+            topic = getOption<string>(interaction, "getString", "topic", 5, args),
+            reason = getOption<string>(interaction, "getString", "reason", 6, args);
 
           if (!name)
             return await responseError(interaction, "❌ لطفاً نام چنل را وارد کنید.");
@@ -67,14 +73,16 @@ const command: CommandType = {
                   // @ts-ignore
                   type: ChannelType[typeStr],
                   parent: category ? category.id : undefined,
-                  nsfw
+                  nsfw,
+                  topic: topic || undefined,
+                  reason: reason || undefined
                 }),
                 embed = new EmbedBuilder()
                   .setColor(HexToNumber(EmbedData.color.green))
                   .setTimestamp()
                   .setFooter({ text: "✅ چنل ساخته شد!" })
                   .setFields([
-                    { name: "نام چنل", value: `**${newChannel.name}**` },
+                    { name: "چنل", value: `**${newChannel}**` },
                     { name: "شناسه", value: `\`${newChannel.id}\`` }
                   ]);
 
@@ -88,7 +96,9 @@ const command: CommandType = {
         case "slowmode": {
           const
             channel = getChannel(interaction, "channel", 1, args) as TextChannel,
-            duration = getOption<number>(interaction, "getInteger", "duration", 2, args);
+            duration = getOption<number>(interaction, "getInteger", "duration", 2, args),
+            do_for_channels = getOption<boolean>(interaction, "getBoolean", "do-for-channels", 3, args),
+            reason = getOption<string>(interaction, "getString", "reason", 4, args);
 
           if (!channel || !duration)
             return await responseError(interaction, "❌ لطفاً چنل و مدت زمان slowmode را مشخص کنید.");
@@ -97,20 +107,39 @@ const command: CommandType = {
             return await responseError(interaction, "❌ این عملیات تنها برای چنل‌های متنی اعمال می‌شود.");
 
           const
-            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که slowmode **${duration}** ثانیه را برای چنل **${channel.name}** تنظیم کنید؟`),
-            sentMessage = await response(interaction, confirmMsg);
+            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که slowmode **${duration}** ثانیه را برای چنل **${channel}** تنظیم کنید؟`),
+            sentMessage = await response(interaction, confirmMsg),
+            editOption: GuildChannelEditOptions = { rateLimitPerUser: duration, reason: reason || undefined };
 
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
-              await channel.edit({ rateLimitPerUser: duration });
+              let editedChannels: string[] = [];
+              if (do_for_channels)
+                await Promise.all(
+                  (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildText))!
+                    .map(async ch => {
+                      await ch.edit(editOption)
+                      editedChannels.push(ch.id);
+                    })
+                );
+
+              else
+                await channel.edit(editOption);
+
               const embed = new EmbedBuilder()
                 .setColor(HexToNumber(EmbedData.color.green))
                 .setTimestamp()
                 .setFooter({ text: "✅ Slowmode تنظیم شد!" })
                 .setFields([
-                  { name: "چنل", value: `**${channel.name}**` },
-                  { name: "مدت زمان", value: `**${duration} ثانیه**` }
+                  { name: "چنل", value: `**${channel}**` },
+                  { name: "مدت زمان", value: `**\`${duration}\` ثانیه**` }
                 ]);
+
+              if (do_for_channels)
+                embed.setFields([
+                  { name: "چنل ها", value: `**${editedChannels.map(a => `<#${a}>`).join(" | ")}**` },
+                  { name: "مدت زمان", value: `**\`${duration}\` ثانیه**` }
+                ])
 
               return await btn.editReply({ embeds: [embed], components: [] });
             } catch (e: any) {
@@ -120,7 +149,10 @@ const command: CommandType = {
         }
 
         case "clone": {
-          const channel = getChannel(interaction, "channel", 1, args) as TextChannel;
+          const
+            channel = getChannel(interaction, "channel", 1, args) as any,
+            reason = getOption<string>(interaction, "getString", "reason", 2, args);
+
           if (!channel)
             return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
 
@@ -131,14 +163,29 @@ const command: CommandType = {
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
               const
-                cloned = await channel.clone(),
+                cloned = await channel.clone({
+                  name: channel.name,
+                  permissionOverwrites: channel.permissionOverwrites.cache,
+                  parent: channel.parent,
+                  position: channel.position + 1,
+                  reason: reason || undefined,
+                  nsfw: channel.nsfw || undefined,
+                  topic: channel.topic || undefined,
+                  bitrate: channel.bitrate || undefined,
+                  userLimit: channel.userLimit || undefined,
+                  defaultAutoArchiveDuration: channel.defaultAutoArchiveDuration || undefined,
+                  defaultReactionEmoji: channel.defaultReactionEmoji || undefined,
+                  defaultForumLayout: channel.defaultForumLayout || undefined,
+                  availableTags: channel.availableTags || undefined,
+                  rateLimitPerUser: channel.rateLimitPerUser || undefined
+                }),
                 embed = new EmbedBuilder()
                   .setColor(HexToNumber(EmbedData.color.green))
                   .setTimestamp()
                   .setFooter({ text: "✅ چنل کلون شد!" })
                   .setFields([
-                    { name: "چنل اصلی", value: `**${channel.name}**` },
-                    { name: "چنل کلون شده", value: `**${cloned.name}**` }
+                    { name: "چنل اصلی", value: `**${channel}**` },
+                    { name: "چنل کلون شده", value: `**${cloned}**` }
                   ]);
 
               return await btn.editReply({ embeds: [embed], components: [] });
@@ -149,38 +196,114 @@ const command: CommandType = {
         }
 
         case "edit": {
-          const channel = getChannel(interaction, "channel", 1, args) as TextChannel;
+          const channel = getChannel(interaction, "channel", 1, args) as GuildChannel;
           if (!channel)
             return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
 
           const
             newName = getOption<string>(interaction, "getString", "name", 2, args),
             topic = getOption<string>(interaction, "getString", "topic", 3, args),
-            nsfw = getOption<boolean>(interaction, "getBoolean", "nsfw", 4, args);
+            nsfw = getOption<boolean>(interaction, "getBoolean", "nsfw", 4, args),
+            category = getOption<Channel>(interaction, "getChannel", "category", 5, args),
+            do_for = getOption<string>(interaction, "getString", "do-for", 6, args),
+            reason = getOption<string>(interaction, "getString", "reason", 7, args);
 
           if (!newName && !topic && nsfw === undefined)
             return await responseError(interaction, "❌ لطفاً حداقل یکی از گزینه‌های ویرایش (نام، موضوع یا NSFW) را وارد کنید.");
 
           const
             confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که چنل **${channel.name}** را ویرایش کنید؟`),
-            sentMessage = await response(interaction, confirmMsg);
+            sentMessage = await response(interaction, confirmMsg),
+            editOption: GuildChannelEditOptions = {
+              name: newName || undefined,
+              topic: topic || undefined,
+              nsfw: nsfw || undefined,
+              parent: category?.id || undefined,
+              reason: reason || undefined
+            };
 
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
-              const updated = await channel.edit({
-                name: newName || channel.name,
-                topic: topic || (channel as TextChannel).topic,
-                nsfw: nsfw ? nsfw : (channel as TextChannel).nsfw
-              });
-              const embed = new EmbedBuilder()
-                .setColor(HexToNumber(EmbedData.color.green))
-                .setTimestamp()
-                .setFooter({ text: "✅ چنل ویرایش شد!" })
-                .setFields([
-                  { name: "نام جدید", value: `**${updated.name}**` },
-                  { name: "موضوع", value: (updated as TextChannel).topic ? `**${(updated as TextChannel).topic}**` : "ندارد" },
-                  { name: "NSFW", value: (updated as TextChannel).nsfw ? "✅ بله" : "❌ خیر" }
-                ]);
+              let editedChannels: string[] = [];
+              if (do_for)
+                switch (do_for) {
+                  case "all": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache)!
+                        .map(async ch => {
+                          await ch.edit(editOption)
+                          editedChannels.push(ch.id);
+                        })
+                    )
+                    break;
+                  }
+
+                  case "nsfw": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache.filter(a => Object.hasOwn(a, "nsfw")))!
+                        .map(async ch => {
+                          await ch.edit(editOption)
+                          editedChannels.push(ch.id);
+                        })
+                    )
+                    break;
+                  }
+
+                  case "text": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildText))!
+                        .map(async ch => {
+                          await ch.edit(editOption)
+                          editedChannels.push(ch.id);
+                        })
+                    )
+                    break;
+                  }
+
+                  case "voice": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildVoice))!
+                        .map(async ch => {
+                          await ch.edit(editOption)
+                          editedChannels.push(ch.id);
+                        })
+                    )
+                    break;
+                  }
+
+                  case "forum": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildForum))!
+                        .map(async ch => {
+                          await ch.edit(editOption)
+                          editedChannels.push(ch.id);
+                        })
+                    )
+                    break;
+                  }
+                }
+
+              const
+                updated = await channel.edit(editOption),
+                embed = new EmbedBuilder()
+                  .setColor(HexToNumber(EmbedData.color.green))
+                  .setTimestamp()
+                  .setFooter({ text: "✅ ویرایش شد!" });
+
+              if (do_for)
+                embed.addFields({ name: "چنل ها", value: `**${editedChannels.map(a => `<#${a}>`).join(" | ")}**` });
+
+              if (newName)
+                embed.addFields({ name: "نام جدید", value: `**${updated.name}**` });
+
+              if (topic)
+                embed.addFields({ name: "موضوع", value: (updated as any)?.topic ? `${(updated as any)?.topic}` : "ندارد" });
+
+              if (category)
+                embed.addFields({ name: "کتگوری", value: updated.parentId ? `**<#${updated.parentId}>**` : "ندارد" });
+
+              if (nsfw)
+                embed.addFields({ name: "NSFW", value: (updated as any)?.nsfw ? "✅ بله" : "❌ خیر" });
 
               return await btn.editReply({ embeds: [embed], components: [] });
             } catch (e: any) {
