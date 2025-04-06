@@ -1,15 +1,14 @@
 import {
   ApplicationCommandType,
+  AwaitMessagesOptions,
   Channel,
   ChannelType,
   EmbedBuilder,
-  ForumChannel,
   GuildChannel,
   GuildChannelEditOptions,
   Message,
   PermissionsBitField,
-  TextChannel,
-  VoiceChannel
+  TextChannel
 } from "discord.js";
 import {
   createConfirmationMessage,
@@ -100,14 +99,17 @@ const command: CommandType = {
             do_for_channels = getOption<boolean>(interaction, "getBoolean", "do-for-channels", 3, args),
             reason = getOption<string>(interaction, "getString", "reason", 4, args);
 
-          if (!channel || !duration)
+          if (!channel && !do_for_channels)
+            return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
+
+          if (!duration)
             return await responseError(interaction, "❌ لطفاً چنل و مدت زمان slowmode را مشخص کنید.");
 
           if (channel.type !== ChannelType.GuildText)
             return await responseError(interaction, "❌ این عملیات تنها برای چنل‌های متنی اعمال می‌شود.");
 
           const
-            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که slowmode **${duration}** ثانیه را برای چنل **${channel}** تنظیم کنید؟`),
+            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که slowmode **${duration}** ثانیه را برای ${do_for_channels ? "**همه چنل های متنی سرور**" : `چنل **${channel}**`} تنظیم کنید؟`),
             sentMessage = await response(interaction, confirmMsg),
             editOption: GuildChannelEditOptions = { rateLimitPerUser: duration, reason: reason || undefined };
 
@@ -196,11 +198,8 @@ const command: CommandType = {
         }
 
         case "edit": {
-          const channel = getChannel(interaction, "channel", 1, args) as GuildChannel;
-          if (!channel)
-            return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
-
           const
+            channel = getChannel(interaction, "channel", 1, args) as GuildChannel,
             newName = getOption<string>(interaction, "getString", "name", 2, args),
             topic = getOption<string>(interaction, "getString", "topic", 3, args),
             nsfw = getOption<boolean>(interaction, "getBoolean", "nsfw", 4, args),
@@ -208,11 +207,37 @@ const command: CommandType = {
             do_for = getOption<string>(interaction, "getString", "do-for", 6, args),
             reason = getOption<string>(interaction, "getString", "reason", 7, args);
 
+          let doing_for_what: string | undefined = undefined;
+          switch (do_for) {
+            case "all":
+              doing_for_what = "همه چنل ها"
+              break;
+
+            case "nsfw":
+              doing_for_what = "همه چنل های بزرگ سال"
+              break;
+
+            case "text":
+              doing_for_what = "همه تکس چنل ها"
+              break;
+
+            case "voice":
+              doing_for_what = "همه ویس چنل ها"
+              break;
+
+            case "forum":
+              doing_for_what = "همه چنل های فوروم"
+              break;
+          }
+
+          if (!channel && !do_for)
+            return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
+
           if (!newName && !topic && nsfw === undefined)
             return await responseError(interaction, "❌ لطفاً حداقل یکی از گزینه‌های ویرایش (نام، موضوع یا NSFW) را وارد کنید.");
 
           const
-            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که چنل **${channel.name}** را ویرایش کنید؟`),
+            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که ${doing_for_what ? `**${doing_for_what}**` : `چنل **${channel}**`} را ویرایش کنید؟`),
             sentMessage = await response(interaction, confirmMsg),
             editOption: GuildChannelEditOptions = {
               name: newName || undefined,
@@ -313,22 +338,112 @@ const command: CommandType = {
         }
 
         case "delete": {
-          const channel = getChannel(interaction, "channel", 1, args) as TextChannel;
-          if (!channel)
+          const
+            channel = getChannel(interaction, "channel", 1, args) as GuildChannel,
+            do_for = getOption<string>(interaction, "getString", "do-for", 2, args),
+            reason = getOption<string>(interaction, "getString", "reason", 3, args);
+
+          let doing_for_what: string | undefined = undefined;
+          switch (do_for) {
+            case "all":
+              doing_for_what = "همه چنل ها"
+              break;
+
+            case "nsfw":
+              doing_for_what = "همه چنل های بزرگ سال"
+              break;
+
+            case "text":
+              doing_for_what = "همه تکس چنل ها"
+              break;
+
+            case "voice":
+              doing_for_what = "همه ویس چنل ها"
+              break;
+
+            case "forum":
+              doing_for_what = "همه چنل های فوروم"
+              break;
+          }
+          if (!channel && !do_for)
             return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
 
           const
-            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که چنل **${channel.name}** را حذف کنید؟`),
+            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که ${doing_for_what ? `**${doing_for_what}**` : `چنل **${channel}**`} را حذف کنید؟`),
             sentMessage = await response(interaction, confirmMsg);
 
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
-              await channel.delete("دستور حذف توسط مدیر");
+              let deletedChannels: string[] = [];
+              if (do_for)
+                switch (do_for) {
+                  case "all": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache)!
+                        .map(async ch => {
+                          deletedChannels.push(ch.name);
+                          await ch.delete(reason || undefined);
+                        })
+                    )
+                    break;
+                  }
+
+                  case "nsfw": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache.filter(a => Object.hasOwn(a, "nsfw")))!
+                        .map(async ch => {
+                          deletedChannels.push(ch.name);
+                          await ch.delete(reason || undefined);
+                        })
+                    )
+                    break;
+                  }
+
+                  case "text": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildText))!
+                        .map(async ch => {
+                          deletedChannels.push(ch.name);
+                          await ch.delete(reason || undefined);
+                        })
+                    )
+                    break;
+                  }
+
+                  case "voice": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildVoice))!
+                        .map(async ch => {
+                          deletedChannels.push(ch.name);
+                          await ch.delete(reason || undefined);
+                        })
+                    )
+                    break;
+                  }
+
+                  case "forum": {
+                    await Promise.all(
+                      (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildForum))!
+                        .map(async ch => {
+                          deletedChannels.push(ch.name);
+                          await ch.delete(reason || undefined);
+                        })
+                    )
+                    break;
+                  }
+                }
+
+              else
+                await channel.delete(reason || undefined);
+
               const embed = new EmbedBuilder()
                 .setColor(HexToNumber(EmbedData.color.green))
                 .setTimestamp()
-                .setFooter({ text: "✅ چنل حذف شد!" })
+                .setFooter({ text: "✅ حذف شد!" })
                 .setFields([{ name: "چنل حذف شده", value: `**${channel.name}**` }]);
+
+              if (do_for)
+                embed.setFields({ name: "نام چنل های حذف شده", value: `**${deletedChannels.map(a => `\`${a}\``).join(" | ")}**` });
 
               return await btn.editReply({ embeds: [embed], components: [] });
             } catch (e: any) {
@@ -340,21 +455,52 @@ const command: CommandType = {
         case "purge": {
           const
             channel = getChannel(interaction, "channel", 1, args) as TextChannel,
-            amount = getOption<number>(interaction, "getInteger", "amount", 2, args);
+            amount = getOption<number>(interaction, "getInteger", "amount", 2, args),
+            type = getOption<string>(interaction, "getString", "type", 3, args), // one option of PurgeTypes
+            ids = getOption<string>(interaction, "getString", "ids", 4, args), // do split "," then you have array of ids array (roles or users)
+            target = getOption<string>(interaction, "getString", "target", 5, args), // a string choice: everyone or humans or bots
+            do_for_channels = getOption<boolean>(interaction, "getBoolean", "do-for-channels", 6, args),
+            reason = getOption<string>(interaction, "getString", "reason", 7, args);
 
-          if (!channel || !amount)
-            return await responseError(interaction, "❌ لطفاً چنل و تعداد پیام‌های مورد نظر را مشخص کنید.");
+          if (!channel || !do_for_channels)
+            return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
+
+          if (!amount)
+            return await responseError(interaction, "❌ لطفاً تعداد پیام های مورد نظر را مشخص کنید.");
 
           if (channel.type !== ChannelType.GuildText)
             return await responseError(interaction, "❌ این عملیات تنها برای چنل‌های متنی قابل انجام است.");
 
           const
-            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که **${amount}** پیام اخیر در چنل **${channel.name}** پاک شوند؟`),
+            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که **${amount}** پیام اخیر در ${do_for_channels ? "**همه ی چنل های متنی**" : `چنل **${channel}**`} پاک شوند؟`),
             sentMessage = await response(interaction, confirmMsg);
 
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
-              await channel.bulkDelete(amount, true);
+              const
+                filtersByType = {
+                  "Bot Messages": (msg: Message<boolean>) => { return msg.member?.user.bot },
+                  "User Messages": (msg: Message<boolean>) => { return !msg.member?.user.bot },
+                  "Webhook Messages": (msg: Message<boolean>) => { return msg.webhookId },
+                  "Messages with texts": (msg: Message<boolean>) => { return msg.content },
+                  "Messages with embeds": (msg: Message<boolean>) => { return msg.embeds && msg.embeds.length > 0 },
+                  "Messages with attachments": (msg: Message<boolean>) => { return msg.attachments && msg.attachments.size > 0 },
+                  "Messages with links": (msg: Message<boolean>) => { return msg.content.match(/(https?:\/\/[^\s]+)/gi) },
+                  "Messages with mentions": (msg: Message<boolean>) => { return msg.mentions.users.size > 0 || msg.mentions.roles.size > 0 || msg.mentions.everyone; },
+                  "Messages with reactions": (msg: Message<boolean>) => { return msg.reactions.cache.size > 0 },
+                  "Messages with emojis": (msg: Message<boolean>) => { msg },
+                  "Suspicious Members": (msg: Message<boolean>) => { msg },
+                  "No Role Members": (msg: Message<boolean>) => { msg },
+                  "No Avatar Members": (msg: Message<boolean>) => { msg },
+                  "Messages starts with input": (msg: Message<boolean>) => { msg },
+                  "Messages includes input": (msg: Message<boolean>) => { msg },
+                  "Messages that come before input MessageID": (msg: Message<boolean>) => { msg },
+                  "Messages that come after input MessageID": (msg: Message<boolean>) => { msg }
+                },
+                messagesOption: AwaitMessagesOptions = { max: amount },
+                messages = await channel.awaitMessages(messagesOption);
+
+              await channel.bulkDelete(messages, false);
               const embed = new EmbedBuilder()
                 .setColor(HexToNumber(EmbedData.color.green))
                 .setTimestamp()

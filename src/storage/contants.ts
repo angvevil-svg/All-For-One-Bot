@@ -2,7 +2,7 @@ import { ApplicationCommandOptionType, ChannelType, PermissionsBitField } from "
 import { CommandOptions } from "../types/types";
 import { CommandOption } from "../types/interfaces";
 
-const PurgeTypes = [
+export const PurgeTypes = [
   "Bot Messages",
   "User Messages",
   "Webhook Messages",
@@ -42,10 +42,10 @@ export const
       required
     };
   },
-  ReasonOption = function (required = false): CommandOption {
+  ReasonOption = function (required = false, name = "reason", description = "دلیل را ذکر کنید."): CommandOption {
     return {
-      name: "reason",
-      description: "دلیل را ذکر کنید.",
+      name,
+      description,
       type: ApplicationCommandOptionType.String,
       required
     };
@@ -173,14 +173,6 @@ export const
         {
           name: "Humans",
           value: "humans"
-        },
-        {
-          name: "Roles",
-          value: "roles"
-        },
-        {
-          name: "Users",
-          value: "users"
         }
       ]
     };
@@ -725,7 +717,7 @@ export const
       description: "ویرایش تنظیمات یک چنل.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        ChannelOption(true),
+        ChannelOption(false),
         {
           name: "name",
           description: "نام جدید چنل",
@@ -754,7 +746,8 @@ export const
       description: "حذف یک چنل از سرور.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        ChannelOption(true),
+        ChannelOption(false),
+        AllChannelsOption(false, "do-for", undefined, true),
         ReasonOption()
       ]
     },
@@ -770,15 +763,17 @@ export const
           type: ApplicationCommandOptionType.Integer,
           required: false
         },
-        ReasonOption(),
+        TargetOption(),
         IdsOption(),
+        AllChannelsOption(),
         {
           name: "type",
           description: "نوع پیام هایی که میخواهید پاک بشوند را انتخاب کنید.",
           type: ApplicationCommandOptionType.String,
           choices: PurgeTypes.map(a => ({ name: a, value: a })),
           required: false
-        }
+        },
+        ReasonOption(false, undefined, "دلیل را ذکر کنید. (این بخش در Audit Log ثبت نمیشود.)")
       ]
     },
     {
