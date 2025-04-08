@@ -2,7 +2,7 @@ import { ApplicationCommandOptionType, ChannelType, PermissionsBitField } from "
 import { CommandOptions } from "../types/types";
 import { CommandOption } from "../types/interfaces";
 
-export const PurgeTypes = [
+const PurgeTypes = [
   "Bot Messages",
   "User Messages",
   "Webhook Messages",
@@ -24,32 +24,6 @@ export const PurgeTypes = [
 
 // Single options
 export const
-  EphemeralOption = function (required = false): CommandOption {
-    return {
-      name: "ephemeral",
-      description: "آیا می‌خواهید این پیام مخفی بماند؟",
-      type: ApplicationCommandOptionType.String,
-      choices: [
-        {
-          name: "بله",
-          value: "true"
-        },
-        {
-          name: "خیر",
-          value: "false"
-        }
-      ],
-      required
-    };
-  },
-  ReasonOption = function (required = false, name = "reason", description = "دلیل را ذکر کنید."): CommandOption {
-    return {
-      name,
-      description,
-      type: ApplicationCommandOptionType.String,
-      required
-    };
-  },
   UserOption = function (required = false, name = "user", description = "کاربر را وارد کنید."): CommandOption {
     return {
       name,
@@ -65,6 +39,18 @@ export const
       type: ApplicationCommandOptionType.Role,
       required
     };
+  },
+  ChannelOption = function (required = false, name = "channel", description = "چنل وارد کنید.", channel_types?: ChannelType[]): CommandOption {
+    let data: any = {
+      name,
+      description,
+      type: ApplicationCommandOptionType.Channel,
+      required
+    };
+    if (channel_types)
+      data.channel_types = channel_types;
+
+    return data;
   },
   HbeOption = function (required = false, name = "hbe", description = "این ابزار روی عمل کنه ممبر ها (یا ربات یا انسان یا همه)"): CommandOption {
     return {
@@ -103,18 +89,6 @@ export const
       type: ApplicationCommandOptionType.Boolean,
       required
     };
-  },
-  ChannelOption = function (required = false, name = "channel", description = "چنل وارد کنید.", channel_types?: ChannelType[]): CommandOption {
-    let data: any = {
-      name,
-      description,
-      type: ApplicationCommandOptionType.Channel,
-      required
-    };
-    if (channel_types)
-      data.channel_types = channel_types;
-
-    return data;
   },
   AllChannelsOption = function (required = false, name = "do-for-channels", description = "اعمال روی همه چنل ها.", custom = false): CommandOption {
     if (custom)
@@ -155,29 +129,33 @@ export const
         required
       };
   },
-  TargetOption = function (required = false, name = "target", description = "انتخاب گروه هدف (everyone, bots, humans, roles, users)"): CommandOption {
+  InputOption = function (required = false, name = "input", description = "موارد مورد نیاز را وارد کنید."): CommandOption {
     return {
       name,
       description,
       type: ApplicationCommandOptionType.String,
-      required,
-      choices: [
-        {
-          name: "Everyone",
-          value: "everyone"
-        },
-        {
-          name: "Bots",
-          value: "bots"
-        },
-        {
-          name: "Humans",
-          value: "humans"
-        }
-      ]
+      required
     };
   },
-  IdsOption = function (required = false, name = "ids", description = "آی‌دی‌های جداشده با کاما (برای roles یا users)"): CommandOption {
+  EphemeralOption = function (required = false): CommandOption {
+    return {
+      name: "ephemeral",
+      description: "آیا می‌خواهید این پیام مخفی بماند؟",
+      type: ApplicationCommandOptionType.String,
+      choices: [
+        {
+          name: "بله",
+          value: "true"
+        },
+        {
+          name: "خیر",
+          value: "false"
+        }
+      ],
+      required
+    };
+  },
+  ReasonOption = function (required = false, name = "reason", description = "دلیل را ذکر کنید."): CommandOption {
     return {
       name,
       description,
@@ -763,8 +741,9 @@ export const
           type: ApplicationCommandOptionType.Integer,
           required: false
         },
-        TargetOption(),
-        IdsOption(),
+        HbeOption(),
+        InputOption(),
+        InputOption(false, "ids", "آی‌دی‌های جداشده با کاما (برای roles یا users)"),
         AllChannelsOption(),
         {
           name: "type",
@@ -781,10 +760,11 @@ export const
       description: "قفل یا باز کردن چنل برای دسترسی‌ها.",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
-        ChannelOption(true),
-        TargetOption(true),
+        ChannelOption(),
+        AllChannelsOption(undefined, "do-for", undefined, true),
+        HbeOption(),
         UnDoOption(false, "action", "قفل یا باز کردن چنل."),
-        IdsOption(),
+        InputOption(false, "ids", "آی‌دی‌های جداشده با کاما (برای roles یا users)"),
         ReasonOption()
       ]
     }

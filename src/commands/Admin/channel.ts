@@ -1,6 +1,5 @@
 import {
   ApplicationCommandType,
-  AwaitMessagesOptions,
   Channel,
   ChannelType,
   EmbedBuilder,
@@ -8,7 +7,8 @@ import {
   GuildChannelEditOptions,
   Message,
   PermissionsBitField,
-  TextChannel
+  TextChannel,
+  User
 } from "discord.js";
 import {
   createConfirmationMessage,
@@ -97,7 +97,9 @@ const command: CommandType = {
             channel = getChannel(interaction, "channel", 1, args) as TextChannel,
             duration = getOption<number>(interaction, "getInteger", "duration", 2, args),
             do_for_channels = getOption<boolean>(interaction, "getBoolean", "do-for-channels", 3, args),
-            reason = getOption<string>(interaction, "getString", "reason", 4, args);
+            reason = getOption<string>(interaction, "getString", "reason", 4, args),
+            targetChannels = do_for_channels ?
+              guild.channels.cache.filter(a => a.type === ChannelType.GuildText).map(a => a) : [channel];
 
           if (!channel && !do_for_channels)
             return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
@@ -116,32 +118,22 @@ const command: CommandType = {
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
               let editedChannels: string[] = [];
-              if (do_for_channels)
-                await Promise.all(
-                  (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildText))!
-                    .map(async ch => {
-                      await ch.edit(editOption)
-                      editedChannels.push(ch.id);
-                    })
-                );
-
-              else
-                await channel.edit(editOption);
+              for (const targetChannel of targetChannels) {
+                await targetChannel.edit(editOption)
+                editedChannels.push(targetChannel.id);
+              }
 
               const embed = new EmbedBuilder()
                 .setColor(HexToNumber(EmbedData.color.green))
                 .setTimestamp()
                 .setFooter({ text: "✅ Slowmode تنظیم شد!" })
                 .setFields([
-                  { name: "چنل", value: `**${channel}**` },
+                  do_for_channels ?
+                    { name: "چنل ها", value: `**${editedChannels.map(a => `<#${a}>`).join(" | ")}**` } :
+                    { name: "چنل", value: `**${channel}**` },
                   { name: "مدت زمان", value: `**\`${duration}\` ثانیه**` }
                 ]);
 
-              if (do_for_channels)
-                embed.setFields([
-                  { name: "چنل ها", value: `**${editedChannels.map(a => `<#${a}>`).join(" | ")}**` },
-                  { name: "مدت زمان", value: `**\`${duration}\` ثانیه**` }
-                ])
 
               return await btn.editReply({ embeds: [embed], components: [] });
             } catch (e: any) {
@@ -198,6 +190,7 @@ const command: CommandType = {
         }
 
         case "edit": {
+          let doing_for_what: string | undefined = undefined;
           const
             channel = getChannel(interaction, "channel", 1, args) as GuildChannel,
             newName = getOption<string>(interaction, "getString", "name", 2, args),
@@ -205,30 +198,32 @@ const command: CommandType = {
             nsfw = getOption<boolean>(interaction, "getBoolean", "nsfw", 4, args),
             category = getOption<Channel>(interaction, "getChannel", "category", 5, args),
             do_for = getOption<string>(interaction, "getString", "do-for", 6, args),
-            reason = getOption<string>(interaction, "getString", "reason", 7, args);
+            reason = getOption<string>(interaction, "getString", "reason", 7, args),
+            targetChannels = do_for
+              ? guild.channels.cache.filter(a => {
+                switch (do_for) {
+                  case "all":
+                    doing_for_what = "همه چنل ها";
+                    return a;
 
-          let doing_for_what: string | undefined = undefined;
-          switch (do_for) {
-            case "all":
-              doing_for_what = "همه چنل ها"
-              break;
+                  case "nsfw":
+                    doing_for_what = "همه چنل های بزرگ سال"
+                    return Object.hasOwn(a, "nsfw");
 
-            case "nsfw":
-              doing_for_what = "همه چنل های بزرگ سال"
-              break;
+                  case "text":
+                    doing_for_what = "همه تکس چنل ها"
+                    return a.type === ChannelType.GuildText;
 
-            case "text":
-              doing_for_what = "همه تکس چنل ها"
-              break;
+                  case "voice":
+                    doing_for_what = "همه ویس چنل ها"
+                    return a.type === ChannelType.GuildVoice;
 
-            case "voice":
-              doing_for_what = "همه ویس چنل ها"
-              break;
-
-            case "forum":
-              doing_for_what = "همه چنل های فوروم"
-              break;
-          }
+                  case "forum":
+                    doing_for_what = "همه چنل های فوروم"
+                    return a.type === ChannelType.GuildForum;
+                }
+              }).map(a => a) as GuildChannel[]
+              : [channel];
 
           if (!channel && !do_for)
             return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
@@ -250,73 +245,22 @@ const command: CommandType = {
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
               let editedChannels: string[] = [];
-              if (do_for)
-                switch (do_for) {
-                  case "all": {
-                    await Promise.all(
-                      (interaction.guild?.channels.cache)!
-                        .map(async ch => {
-                          await ch.edit(editOption)
-                          editedChannels.push(ch.id);
-                        })
-                    )
-                    break;
-                  }
-
-                  case "nsfw": {
-                    await Promise.all(
-                      (interaction.guild?.channels.cache.filter(a => Object.hasOwn(a, "nsfw")))!
-                        .map(async ch => {
-                          await ch.edit(editOption)
-                          editedChannels.push(ch.id);
-                        })
-                    )
-                    break;
-                  }
-
-                  case "text": {
-                    await Promise.all(
-                      (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildText))!
-                        .map(async ch => {
-                          await ch.edit(editOption)
-                          editedChannels.push(ch.id);
-                        })
-                    )
-                    break;
-                  }
-
-                  case "voice": {
-                    await Promise.all(
-                      (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildVoice))!
-                        .map(async ch => {
-                          await ch.edit(editOption)
-                          editedChannels.push(ch.id);
-                        })
-                    )
-                    break;
-                  }
-
-                  case "forum": {
-                    await Promise.all(
-                      (interaction.guild?.channels.cache.filter(a => a.type === ChannelType.GuildForum))!
-                        .map(async ch => {
-                          await ch.edit(editOption)
-                          editedChannels.push(ch.id);
-                        })
-                    )
-                    break;
-                  }
-                }
+              for (const targetChannel of targetChannels) {
+                await targetChannel.edit(editOption)
+                editedChannels.push(targetChannel.id);
+              }
 
               const
                 updated = await channel.edit(editOption),
                 embed = new EmbedBuilder()
                   .setColor(HexToNumber(EmbedData.color.green))
                   .setTimestamp()
-                  .setFooter({ text: "✅ ویرایش شد!" });
-
-              if (do_for)
-                embed.addFields({ name: "چنل ها", value: `**${editedChannels.map(a => `<#${a}>`).join(" | ")}**` });
+                  .setFooter({ text: "✅ ویرایش شد!" })
+                  .setFields([
+                    do_for ?
+                      { name: "چنل ها", value: `**${editedChannels.map(a => `<#${a}>`).join(" | ")}**` } :
+                      { name: "چنل", value: `**${editedChannels.map(a => `<#${a}>`).join(" | ")}**` }
+                  ]);
 
               if (newName)
                 embed.addFields({ name: "نام جدید", value: `**${updated.name}**` });
@@ -456,74 +400,165 @@ const command: CommandType = {
           const
             channel = getChannel(interaction, "channel", 1, args) as TextChannel,
             amount = getOption<number>(interaction, "getInteger", "amount", 2, args),
-            type = getOption<string>(interaction, "getString", "type", 3, args), // one option of PurgeTypes
-            ids = getOption<string>(interaction, "getString", "ids", 4, args), // do split "," then you have array of ids array (roles or users)
-            target = getOption<string>(interaction, "getString", "target", 5, args), // a string choice: everyone or humans or bots
-            do_for_channels = getOption<boolean>(interaction, "getBoolean", "do-for-channels", 6, args),
-            reason = getOption<string>(interaction, "getString", "reason", 7, args);
+            type = getOption<string>(interaction, "getString", "type", 3, args), // about filtersByType constent
+            ids = getOption<string>(interaction, "getString", "ids", 4, args) || undefined, // roles or users
+            hbe = getOption<string>(interaction, "getString", "hbe", 5, args), // everyone, bots, humans
+            input = getOption<string>(interaction, "getString", "input", 6, args),
+            do_for_channels = getOption<boolean>(interaction, "getBoolean", "do-for-channels", 7, args),
+            reason = getOption<string>(interaction, "getString", "reason", 8, args),
+            isSuspiciousAccount = (user: User) => {
+              const accountAge = Date.now() - user.createdTimestamp;
+              return accountAge < 604800000; // 7 day
+            };
 
-          if (!channel || !do_for_channels)
-            return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
+          if (!amount || amount < 1 || amount > 100)
+            return await responseError(interaction, "❌ تعداد پیام باید بین 1 تا 100 باشد.");
 
-          if (!amount)
-            return await responseError(interaction, "❌ لطفاً تعداد پیام های مورد نظر را مشخص کنید.");
-
-          if (channel.type !== ChannelType.GuildText)
-            return await responseError(interaction, "❌ این عملیات تنها برای چنل‌های متنی قابل انجام است.");
+          if (do_for_channels && !channel?.isTextBased())
+            return await responseError(interaction, "❌ باید حداقل یک چنل معتبر انتخاب کنید.");
 
           const
-            confirmMsg = createConfirmationMessage(`❓ آیا مطمئن هستید که **${amount}** پیام اخیر در ${do_for_channels ? "**همه ی چنل های متنی**" : `چنل **${channel}**`} پاک شوند؟`),
+            targetChannels = do_for_channels
+              ? interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildText).map(a => a)
+              : [channel],
+            confirmMsg = createConfirmationMessage(
+              `❓ آیا مطمئن هستید که **${amount}** پیام اخیر در ${do_for_channels ? "**همه چنل‌ها**" : `چنل **${channel}**`} پاک شوند؟`
+            ),
             sentMessage = await response(interaction, confirmMsg);
 
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
               const
-                filtersByType = {
-                  "Bot Messages": (msg: Message<boolean>) => { return msg.member?.user.bot },
-                  "User Messages": (msg: Message<boolean>) => { return !msg.member?.user.bot },
-                  "Webhook Messages": (msg: Message<boolean>) => { return msg.webhookId },
-                  "Messages with texts": (msg: Message<boolean>) => { return msg.content },
-                  "Messages with embeds": (msg: Message<boolean>) => { return msg.embeds && msg.embeds.length > 0 },
-                  "Messages with attachments": (msg: Message<boolean>) => { return msg.attachments && msg.attachments.size > 0 },
-                  "Messages with links": (msg: Message<boolean>) => { return msg.content.match(/(https?:\/\/[^\s]+)/gi) },
-                  "Messages with mentions": (msg: Message<boolean>) => { return msg.mentions.users.size > 0 || msg.mentions.roles.size > 0 || msg.mentions.everyone; },
-                  "Messages with reactions": (msg: Message<boolean>) => { return msg.reactions.cache.size > 0 },
-                  "Messages with emojis": (msg: Message<boolean>) => { msg },
-                  "Suspicious Members": (msg: Message<boolean>) => { msg },
-                  "No Role Members": (msg: Message<boolean>) => { msg },
-                  "No Avatar Members": (msg: Message<boolean>) => { msg },
-                  "Messages starts with input": (msg: Message<boolean>) => { msg },
-                  "Messages includes input": (msg: Message<boolean>) => { msg },
-                  "Messages that come before input MessageID": (msg: Message<boolean>) => { msg },
-                  "Messages that come after input MessageID": (msg: Message<boolean>) => { msg }
-                },
-                messagesOption: AwaitMessagesOptions = { max: amount },
-                messages = await channel.awaitMessages(messagesOption);
+                filtersByType: Record<string, (msg: Message) => Promise<boolean> | boolean> = {
+                  "Bot Messages": (msg) => msg.author.bot,
+                  "User Messages": (msg) => !msg.author.bot,
+                  "Webhook Messages": (msg) => !!msg.webhookId,
+                  "Messages with texts": (msg) => msg.content.length > 0,
+                  "Messages with embeds": (msg) => msg.embeds.length > 0,
+                  "Messages with attachments": (msg) => msg.attachments.size > 0,
+                  "Messages with links": (msg) => /https?:\/\/[^\s]+/gi.test(msg.content),
+                  "Messages with mentions": (msg) => msg.mentions.users.size > 0 || msg.mentions.roles.size > 0 || msg.mentions.everyone,
+                  "Messages with reactions": (msg) => msg.reactions.cache.size > 0,
+                  "Messages with emojis": (msg) =>
+                    /(<a?:[\w]+:\d+>|\p{Extended_Pictographic})/gu.test(msg.content),
+                  "Suspicious Members": (msg) => isSuspiciousAccount(msg.author)
+                    || !msg.author.avatar,
+                  "No Role Members": (msg) => msg.member?.roles.cache.size === 1,
+                  "No Avatar Members": (msg) => !msg.author.avatar
+                    || msg.author.avatar.startsWith("embed/avatars"),
+                  "Messages starts with input": (msg) =>
+                    input ? msg.content.startsWith(input) : false,
+                  "Messages includes input": (msg) => input ?
+                    msg.content.includes(input) : false,
+                  "Messages that come before input MessageID": async (msg) => {
+                    if (!input) return false;
 
-              await channel.bulkDelete(messages, false);
+                    const refMsg = await channel.messages.fetch(input).catch(() => null);
+                    return refMsg ? msg.createdTimestamp < refMsg.createdTimestamp : false;
+                  },
+                  "Messages that come after input MessageID": async (msg) => {
+                    if (!input) return false;
+
+                    const refMsg = await channel.messages.fetch(input).catch(() => null);
+                    return refMsg ? msg.createdTimestamp > refMsg.createdTimestamp : false;
+                  }
+                },
+                hbeFilter = (msg: Message) => {
+                  if (!hbe) return true;
+                  switch (hbe.toLowerCase()) {
+                    case 'bots': return msg.author.bot;
+                    case 'humans': return !msg.author.bot;
+                    case 'everyone': return true;
+                    default: return true;
+                  }
+                };
+
+              let totalDeleted = 0;
+              for (const targetChannel of targetChannels) {
+                if (!targetChannel.isTextBased())
+                  continue;
+
+                const messages = await targetChannel.messages.fetch({ limit: amount });
+                const filtered = messages
+                  .filter(hbeFilter)
+                  .first(amount);
+
+                if (type)
+                  messages
+                    .filter(filtersByType[type]);
+
+                if (ids)
+                  messages
+                    .filter(a => a.member?.roles.cache.hasAny(ids) || ids.includes(a.member!.id))
+
+                await targetChannel.bulkDelete(filtered, true);
+                totalDeleted += filtered.length;
+              }
+
               const embed = new EmbedBuilder()
                 .setColor(HexToNumber(EmbedData.color.green))
-                .setTimestamp()
-                .setFooter({ text: "✅ پیام‌ها پاکسازی شدند!" })
-                .setFields([{ name: "چنل", value: `**${channel.name}**` }]);
+                .setTitle('✅ عملیات پاکسازی با موفقیت انجام شد')
+                .setFields(
+                  { name: 'تعداد پیام‌های پاک شده', value: `${totalDeleted}`, inline: true },
+                  { name: 'چنل‌های هدف', value: do_for_channels ? 'همه چنل‌ها' : channel.toString(), inline: true },
+                  { name: 'فیلتر اعمال شده', value: type || 'بدون فیلتر', inline: true },
+                  { name: 'دلیل', value: reason || 'بدون دلیل مشخص' }
+                )
+                .setTimestamp();
 
-              return await btn.editReply({ embeds: [embed], components: [] });
+              await btn.editReply({ embeds: [embed], components: [] });
             } catch (e: any) {
-              return await responseError(btn, `❌ پاکسازی پیام‌ها انجام نشد!\n${e.message}`, undefined, true);
+              await responseError(
+                btn,
+                `❌ خطا در عملیات پاکسازی:\n${e.message}\n\n` +
+                `**ممکن است این خطا به دلایل زیر باشد:**\n` +
+                '- پیام‌ها قدیمی‌تر از 14 روز هستند\n' +
+                '- دسترسی کافی وجود ندارد\n' +
+                '- محدودیت نرخ دیسکورد',
+                undefined,
+                true
+              );
             }
           });
         }
 
         case "lock": {
-          const channel = getChannel(interaction, "channel", 1, args) as TextChannel;
-          if (!channel)
-            return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
-
+          let doing_for_what: string | undefined = undefined;
           const
-            action = getOption<string>(interaction, "getString", "action", 2, args), // lock یا unlock
-            target = getOption<string>(interaction, "getString", "target", 3, args), // everyone, bots, humans, roles, users
-            ids = getOption<string>(interaction, "getString", "ids", 4, args), // برای roles یا users
-            reason = getOption<string>(interaction, "getString", "reason", 5, args);
+            channel = getChannel(interaction, "channel", 1, args)!,
+            do_for = getOption<string>(interaction, "getString", "do-for", 2, args),
+            action = getOption<string>(interaction, "getString", "action", 3, args) || "lock", // lock or unlock
+            target = getOption<string>(interaction, "getString", "target", 4, args), // everyone, bots, humans
+            ids = getOption<string>(interaction, "getString", "ids", 5, args), // roles or users
+            reason = getOption<string>(interaction, "getString", "reason", 6, args),
+            targetChannels = do_for
+              ? guild.channels.cache.filter(a => {
+                switch (do_for) {
+                  case "all":
+                    doing_for_what = "همه چنل ها";
+                    return a;
+
+                  case "nsfw":
+                    doing_for_what = "همه چنل های بزرگ سال"
+                    return Object.hasOwn(a, "nsfw");
+
+                  case "text":
+                    doing_for_what = "همه تکس چنل ها"
+                    return a.type === ChannelType.GuildText;
+
+                  case "voice":
+                    doing_for_what = "همه ویس چنل ها"
+                    return a.type === ChannelType.GuildVoice;
+
+                  case "forum":
+                    doing_for_what = "همه چنل های فوروم"
+                    return a.type === ChannelType.GuildForum;
+                }
+              }).map(a => a) as GuildChannel[]
+              : [channel];
+
+          if (!channel && !do_for)
+            return await responseError(interaction, "❌ لطفاً چنل مورد نظر را مشخص کنید.");
 
           if (!action || !target)
             return await responseError(interaction, "❌ لطفاً عمل (lock/unlock) و هدف را مشخص کنید.");
@@ -534,35 +569,49 @@ const command: CommandType = {
 
           return await yesOrNo(interaction, sentMessage!, async (btn) => {
             try {
-              if (target === "everyone") {
-                await channel.permissionOverwrites.edit(guild.id, {
-                  SendMessages: action === "lock" ? false : null
-                }, { reason: reason || undefined });
-              }
+              const filterIds: string[] = [];
+              if (target)
+                switch (target) {
+                  case "everyone":
+                    filterIds.push(guild.id)
+                    break;
 
-              else if (target === "bots" || target === "humans") {
-                const members = guild.members.cache.filter(m =>
-                  m.voice.channel && // در صورت نیاز، می‌توان به کانال اشاره کرد
-                  (target === "bots" ? m.user.bot : !m.user.bot)
-                );
-                for (const member of members.values()) {
-                  await channel.permissionOverwrites.edit(member.id, {
-                    SendMessages: action === "lock" ? false : null
-                  }, { reason: reason || undefined });
+                  case "bots":
+                  case "humans":
+                    const members = guild.members.cache.filter(m =>
+                    target === "bots" ? m.user.bot : !m.user.bot
+                    );
+                    members.forEach(a => filterIds.push(a.id))
+                    break;
                 }
-              }
 
-              else if ((target === "roles" || target === "users") && ids) {
+              if (ids) {
                 const idList = ids.split(",").map(id => id.trim());
+
                 for (const id of idList) {
-                  await channel.permissionOverwrites.edit(id, {
-                    SendMessages: action === "lock" ? false : null
-                  }, { reason: reason || undefined });
+                  if (guild.members.cache.get(id) || guild.roles.cache.get(id))
+                    filterIds.push(id);
+
+                  else
+                    return await responseError(interaction, "❌ مقادیر وارد شده برای target یا ids معتبر نیست.");
                 }
               }
 
-              else
-                return await responseError(interaction, "❌ مقادیر وارد شده برای target یا ids معتبر نیست.");
+              if (!ids && !target)
+                filterIds.push(guild.id);
+
+
+              Promise.all(
+                targetChannels.map(ch => {
+                  Promise.all(
+                    filterIds.map(async (id) => {
+                      await ch.permissionOverwrites.edit(id, {
+                        SendMessages: action === "lock" ? false : null
+                      }, { reason: reason || undefined });
+                    })
+                  )
+                })
+              )
 
               const embed = new EmbedBuilder()
                 .setColor(HexToNumber(EmbedData.color.green))
