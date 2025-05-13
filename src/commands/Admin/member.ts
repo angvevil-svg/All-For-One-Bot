@@ -18,9 +18,9 @@ import {
   filterMembers,
   getMember,
   getOption,
-  getUser
+  getUser,
+  MemberCmdOptions
 } from "../../functions/functions";
-import { MemberCmdOptions } from "../../storage/contants";
 import { CommandType } from "../../types/interfaces";
 import responseError from "../../utils/responseError";
 import HexToNumber from "../../functions/HexToNumber";
@@ -52,7 +52,7 @@ const command: CommandType = {
         guild = interaction.guild!,
         issuer = interaction.member as GuildMember,
         botMember = await guild.members.fetchMe(),
-        subcommand = getOption<string>(interaction, "getSubcommand", undefined, 1, args),
+        subcommand = getOption<string>(interaction, "getSubcommand", undefined, 0, args),
         db = client.db!;
 
       switch (subcommand) {

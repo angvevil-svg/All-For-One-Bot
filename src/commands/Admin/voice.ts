@@ -9,9 +9,9 @@ import {
 import {
   createConfirmationMessage,
   getOption,
-  getUser
+  getUser,
+  VoiceCmdOptions
 } from "../../functions/functions";
-import { VoiceCmdOptions } from "../../storage/contants";
 import { CommandType } from "../../types/interfaces";
 import responseError from "../../utils/responseError";
 import HexToNumber from "../../functions/HexToNumber";
@@ -46,7 +46,7 @@ const command: CommandType = {
           return issuer.roles.highest.position > target.roles.highest.position &&
             botMember.roles.highest.position > target.roles.highest.position;
         },
-        subcommand = getOption<string>(interaction, "getSubcommand", undefined, 1, args);
+        subcommand = getOption<string>(interaction, "getSubcommand", undefined, 0, args)
 
       switch (subcommand) {
         case "mute": {
@@ -78,7 +78,7 @@ const command: CommandType = {
                     { name: "👮 ادمین:", value: `**${issuer.user.tag} (\`${issuer.user.id}\`)**` },
                     { name: "👤 کاربر میوت شده:", value: `**${user.username} (\`${user.id}\`)**` }
                   ]);
-                  
+
                 return await btn.editReply({ embeds: [embed], components: [] });
               } catch (e: any) {
                 return await responseError(btn, `❌ عملیات میوت انجام نشد!\n${e.message}`, undefined, true);

@@ -9,16 +9,16 @@ import {
   PermissionFlagsBits,
   PermissionsBitField
 } from "discord.js";
-import { EphemeralOption } from "../../storage/contants";
+import { EphemeralOption } from "../../functions/functions";
 import { CommandType } from "../../types/interfaces";
 import GenerateKissImage from "../../classes/GenerateKissImage";
 import responseError from "../../utils/responseError";
 import HexToNumber from "../../functions/HexToNumber";
+import capitalize from "../../functions/capitalize";
 import EmbedData from "../../storage/embed";
 import getAuthor from "../../utils/getAuthor";
 import response from "../../utils/response";
 import error from "../../utils/error";
-import capitalize from "../../functions/capitalize";
 
 const kiss_types = [
   "two-boys",

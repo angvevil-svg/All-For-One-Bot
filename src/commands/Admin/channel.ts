@@ -13,9 +13,9 @@ import {
 import {
   createConfirmationMessage,
   getChannel,
-  getOption
+  getOption,
+  ChannelCmdOptions
 } from "../../functions/functions";
-import { ChannelCmdOptions } from "../../storage/contants";
 import { CommandType } from "../../types/interfaces";
 import responseError from "../../utils/responseError";
 import HexToNumber from "../../functions/HexToNumber";
@@ -45,7 +45,7 @@ const command: CommandType = {
       if (!interaction.guild) return;
       const
         guild = interaction.guild,
-        subcommand = getOption<string>(interaction, "getSubcommand", undefined, 1, args);
+        subcommand = getOption<string>(interaction, "getSubcommand", undefined, 0, args);
 
       switch (subcommand) {
         case "create": {
@@ -208,7 +208,7 @@ const command: CommandType = {
 
                   case "nsfw":
                     doing_for_what = "همه چنل های بزرگ سال"
-                    return Object.hasOwn(a, "nsfw");
+                    return "nsfw" in a;
 
                   case "text":
                     doing_for_what = "همه تکس چنل ها"
@@ -334,7 +334,7 @@ const command: CommandType = {
 
                   case "nsfw": {
                     await Promise.all(
-                      (interaction.guild?.channels.cache.filter(a => Object.hasOwn(a, "nsfw")))!
+                      (interaction.guild?.channels.cache.filter(a => "nsfw" in a))!
                         .map(async ch => {
                           deletedChannels.push(ch.name);
                           await ch.delete(reason || undefined);
@@ -540,7 +540,7 @@ const command: CommandType = {
 
                   case "nsfw":
                     doing_for_what = "همه چنل های بزرگ سال"
-                    return Object.hasOwn(a, "nsfw");
+                    return "nsfw" in a;
 
                   case "text":
                     doing_for_what = "همه تکس چنل ها"
@@ -579,7 +579,7 @@ const command: CommandType = {
                   case "bots":
                   case "humans":
                     const members = guild.members.cache.filter(m =>
-                    target === "bots" ? m.user.bot : !m.user.bot
+                      target === "bots" ? m.user.bot : !m.user.bot
                     );
                     members.forEach(a => filterIds.push(a.id))
                     break;

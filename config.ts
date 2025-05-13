@@ -1,6 +1,82 @@
 const config = {
     api: {
-        nekos: "https://nekos.life/api"
+        // https://nekos.life/api/v2/endpoints
+        nekos: {
+            url: "https://nekos.life/api",
+            endpoints: {
+                // Random Anime Sences Gif
+                anime_gif: {
+                    pat: "/v2/img/pat", // Anime Gif (url)
+                    hug: "/v2/img/hug", // Anime Gif (url)
+                    kiss: "/v2/img/kiss", // Anime Gif (url)
+                    smug: "/v2/img/smug", // Anime Gif (url)
+                    cuddle: "/v2/img/cuddle", // Anime Gif (url)
+                    slap: "/v2/img/slap", // Anime Gif (url)
+                    feed: "/v2/img/feed", // Anime Gif (url)
+                    tickle: "/v2/img/tickle", // Anime Gif (url)
+                    spank: "/v2/img/spank", // Anime Gif (url)
+                    neko_gif: "/v2/img/ngif"
+                }, // Anime Gif (url)
+
+                // Random Anime Pictures
+                anime_image: {
+                    neko_image: "/v2/img/neko", // Anime Image (url)
+                    fox_girl: "/v2/img/fox_girl", // Anime Image (url)
+                    waifu: "/v2/img/waifu", // Anime Image (url)
+                    gasm: "/v2/img/gasm", // Anime Image (url)
+                    gecg: "/v2/img/gecg", // Anime Image (url)
+                    avatar: "/v2/img/avatar", // Anime Image (url)
+                    wallpaper: "/v2/img/wallpaper"
+                }, // Anime Image (url)
+
+                // Fun
+                fun: {
+                    _8ball: "/v2/8ball", // "response" random text, "url" that text's image
+                    why: "/v2/why", // "why"
+                    cat_to_text: "/v2/cat", // "cat"
+                    fact: "/v2/fact", // "fact"
+                    name: "/v2/name", // "name"
+                    owoify: "/v2/owoify/text=", // "owo" make text to funny text contains owo chars.
+                    spoiler: "/v2/spoiler/text="
+                }, // "owo" make text to hidden text works in discord chats.
+
+                // Random Animal Pictures
+                animal_image: {
+                    lizard: "/v2/img/lizard", // Animal Image (url) 
+                    dog: "/v2/img/woof", // Animal Image (url) 
+                    goose: "/v2/img/goose", // Animal Image (url) 
+                    cat: "/v2/img/meow"
+                } // Animal Image (url) 
+            }
+        },
+
+        // https://docs.nekobot.xyz
+        nekobot: {
+            url: "https://nekobot.xyz/api",
+            endpoints: {
+                // /image The type of image to get. Current types: hass, hmidriff, pgif, 4k, hentai, holo, hneko, neko, hkitsune, kemonomimi, anal, hanal, gonewild, kanna, ass, pussy, thigh, hthigh, gah, coffee, food, paizuri, tentacle, boobs, hboobs, yaoi, donator types: cosplay, swimsuit, pantsu, nakadashi
+
+                // /imagegen?type= [threats, baguette, clyde] text	string Text to clydify.
+                // raw	int	
+                // &raw=1 to get raw image bytes
+                // /imagegen?type=ship
+                // user1	string	
+                // User 1’s avatar
+                // user2	string	
+                // User 2’s avatar
+                // raw	int	
+                // &raw=1 to get raw image bytes
+                nsfw: {
+                    ass: "/image?type=ass",
+                    anal: "/image?type=anal"
+                },
+                anime: {
+                    nsfw: {
+                        ass: "/image?type=hass"
+                    }
+                }
+            }
+        }
     },
     source: {
         anti_crash: process.env.anti_crash === "true" ? true : false || false, // Anticrash on or off
@@ -54,6 +130,7 @@ const config = {
         }
     }
 };
+
 export default config;
 /**
  * @copyright

@@ -1,13 +1,14 @@
 import {
   ApplicationCommandType,
   AttachmentBuilder,
-  CommandInteraction,
-  CommandInteractionOptionResolver,
   EmbedBuilder,
-  Message,
   PermissionFlagsBits,
   PermissionsBitField
 } from "discord.js";
+import {
+  getMember,
+  getOption
+} from "../../functions/functions";
 import { CommandType } from "../../types/interfaces";
 import getLinkResponse from "../../functions/getLinkResponse";
 import HexToNumber from "../../functions/HexToNumber";
@@ -27,7 +28,8 @@ const command: CommandType = {
     default_bot_permissions: new PermissionsBitField([
       PermissionFlagsBits.SendMessages,
       PermissionFlagsBits.EmbedLinks
-    ])
+    ]),
+    options: []
   },
   category: "api",
   aliases: ["h", "commands"],
@@ -39,12 +41,12 @@ const command: CommandType = {
     try {
       const
         user = getAuthor(interaction)!,
-        Subcommand = interaction instanceof CommandInteraction && interaction.options instanceof CommandInteractionOptionResolver ? interaction.options.getSubcommand() : args![0],
-        member = interaction instanceof CommandInteraction && interaction.options instanceof CommandInteractionOptionResolver ? interaction.options.getMember("user")! : interaction instanceof Message && interaction.mentions.members?.first()! || interaction.guild?.members.cache.get(args![1])!;
+        Subcommand = getOption<string>(interaction, "getSubcommand", undefined, 0, args),
+        member = getMember(interaction, getOption<any>(interaction, "getMember", "user", 1, args)!)!;
 
       switch (Subcommand) {
         case "kiss": {
-          const image = await getLinkResponse("nekos","/kiss");
+          const image = await getLinkResponse("nekos", "/kiss");
           return await response(interaction, {
             embeds: [
               new EmbedBuilder()
@@ -60,7 +62,7 @@ const command: CommandType = {
         }
 
         case "hug": {
-          const image = await getLinkResponse("nekos","/hug");
+          const image = await getLinkResponse("nekos", "/hug");
           return await response(interaction, {
             embeds: [
               new EmbedBuilder()
@@ -76,7 +78,7 @@ const command: CommandType = {
         }
 
         case "slap": {
-          const image = await getLinkResponse("nekos","/v2/img/slap");
+          const image = await getLinkResponse("nekos", "/v2/img/slap");
           return await response(interaction, {
             embeds: [
               new EmbedBuilder()
@@ -92,7 +94,7 @@ const command: CommandType = {
         }
 
         case "pat": {
-          const image = await getLinkResponse("nekos","/v2/img/pat");
+          const image = await getLinkResponse("nekos", "/v2/img/pat");
           return await response(interaction, {
             embeds: [
               new EmbedBuilder()
@@ -107,7 +109,7 @@ const command: CommandType = {
         }
 
         case "feed": {
-          const image = await getLinkResponse("nekos","/v2/img/feed");
+          const image = await getLinkResponse("nekos", "/v2/img/feed");
           return await response(interaction, {
             embeds: [
               new EmbedBuilder()

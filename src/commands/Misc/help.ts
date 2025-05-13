@@ -4,7 +4,7 @@ import {
   PermissionFlagsBits,
   PermissionsBitField
 } from "discord.js";
-import { EphemeralOption } from "../../storage/contants";
+import { EphemeralOption } from "../../functions/functions";
 import { CommandType } from "../../types/interfaces";
 import DiscordClient from "../../classes/Client";
 import getAuthor from "../../utils/getAuthor";

@@ -1,10 +1,12 @@
 import config from "../../config";
 
-export default async function getLinkResponse(url: string, endpoint?: string) {
+export default async function getLinkResponse(apiKey: keyof typeof config.api, endpoint?: string): Promise<any>;
+export default async function getLinkResponse(url: string, endpoint?: string): Promise<any> {
   try {
-    if (url && Object.hasOwn(config.api, url))
-      // @ts-ignore
-      url = config.api[url];
+    if (url in config.api) {
+      const api = config.api[url as keyof typeof config.api];
+      url = api.url;
+    }
 
     if (endpoint)
       url += endpoint;

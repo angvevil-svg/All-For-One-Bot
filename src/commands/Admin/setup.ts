@@ -8,7 +8,10 @@ import {
   Message,
   PermissionsBitField
 } from "discord.js";
-import { EphemeralOption } from "../../storage/contants";
+import {
+  getOption,
+  EphemeralOption
+} from "../../functions/functions";
 import { CommandType } from "../../types/interfaces";
 import responseError from "../../utils/responseError";
 import HexToNumber from "../../functions/HexToNumber";
@@ -66,7 +69,7 @@ const command: CommandType = {
       const
         user = getAuthor(interaction)!,
         db = client.db!,
-        Subcommand = interaction instanceof CommandInteraction && interaction.options instanceof CommandInteractionOptionResolver ? interaction.options.getSubcommand() : args![0];
+        Subcommand = getOption<string>(interaction, "getSubcommand", undefined, 0, args);
 
       switch (Subcommand) {
         case "bot-channels": {
