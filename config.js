@@ -1,8 +1,8 @@
 const { ActivityType } = require("discord.js");
 module.exports = {
-  token: process.env.token || "", // Bot token from .env or place in here
-  prefix: process.env.prefix || "", // Put bot message commands prefix in here.
-  serverId: process.env.server_id || "", // Put bot main server's id in here.
+  token: process.env.token || "MTQ3NDY0NDM1MTQyNTcxMjI1OQ.G3pmkB.iwuigVoqo53WjHPrnxsVzhTdsElsaDn3pq0NVg", // Bot token from .env or place in here
+  prefix: process.env.prefix || "!", // Put bot message commands prefix in here.
+  serverId: process.env.server_id || "1474620032745996360", // Put bot main server's id in here.
   only_one_guild: false, // Set bot slash command to all guild or just one with placing true or false.
   source: {
     database: {
