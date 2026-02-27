@@ -5,7 +5,13 @@ const clc = require("cli-color");
 const error = require("../functions/error");
 const post = require("../functions/post");
 const database = (require("../../config")).source.database;
+const { QuickDB } = require("quick.db");
+const { SQLiteDriver } = require("quick.db");
 
+const driver = new SQLiteDriver();
+const db = new QuickDB({ driver });
+
+module.exports = db;
 /**
  * 
  * @param {import("discord.js").Client} client 
