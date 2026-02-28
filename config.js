@@ -1,55 +1,84 @@
 const { ActivityType } = require("discord.js");
+require("dotenv").config();
+
 module.exports = {
-  token: process.env.token || "MTQ3NDY0NDM1MTQyNTcxMjI1OQ.G3pmkB.iwuigVoqo53WjHPrnxsVzhTdsElsaDn3pq0NVg", // Bot token from .env or place in here
-  prefix: process.env.prefix || "!", // Put bot message commands prefix in here.
-  serverId: process.env.server_id || "1474620032745996360", // Put bot main server's id in here.
-  only_one_guild: false, // Set bot slash command to all guild or just one with placing true or false.
+
+  // Bot Token (from .env)
+  token: process.env.token || "MTQ3NDY0NDM1MTQyNTcxMjI1OQ.GMHSxS.dudmjit1_ZoovZOEEfFdSdysIifwC2CdPDhQOY",
+
+  // Prefix
+  prefix: process.env.prefix || "!",
+
+  // Main Server ID
+  serverId: process.env.server_id || "1474620032745996360",
+
+  // Slash command mode
+  only_one_guild: false,
+
+  // Database settings
   source: {
     database: {
-      type: process.env.database_type || "", // Choose one type for save users and guilds data. Types: "mysql" | "sql" | "mongodb" | "json"
-      mongoURL: process.env.database_mongoURL || "", // If you choose "mongodb" type place your mongo url.
+
+      // Database type: mongodb | sql | mysql | json
+      type: process.env.database_type || "mongodb",
+
+      // MongoDB connection URL
+      mongoURL: process.env.database_mongoURL || "",
+
+      // MySQL settings (ignore if using mongodb)
       mysql: {
-        host: process.env.database_msql_host || "", // Place your Mysql server host name.
-        user: process.env.database_msql_user || "", // Place your Mysql server username.
-        password: process.env.database_msql_password || "", // Place your Mysql server password.
-        database: process.env.database_msql_database || "" // Place your Mysql server database name.
-      } // If you choose "mysql" type place your Mysql server information.
+        host: process.env.database_msql_host || "",
+        user: process.env.database_msql_user || "",
+        password: process.env.database_msql_password || "",
+        database: process.env.database_msql_database || ""
+      }
+
     }
   },
+
+  // Bot status settings
   status: {
+
     activity: [
-      "Build by Sobhan-SRZA (mr.sinre)",
-      "Working in {servers} Servers",
-      "Work for {members} Members"
-    ], // Set bot status activity, you can change it. | You can use "{members}" variable to shows bot all users.
+      "Elemental SMP Bot 🤖",
+      "Serving {servers} servers 🌍",
+      "Helping {members} users 👥"
+    ],
+
     type: [
-      ActivityType.Custom
-    ], // Can be: ActivityType.Competing | ActivityType.Listening | ActivityType.Playing | ActivityType.Streaming | ActivityType.Watching
+      ActivityType.Playing
+    ],
+
     presence: [
-      "dnd"
-    ] // Can be: "online" | "dnd" | "idle" | "offline"
+      "online"
+    ]
+
   },
+
+  // Webhook settings
   webhook: {
-    url: process.env.webhook_url || "", // Place a webhook url in here.
-    username: process.env.webhook_username || "Pc Bot", // Place a name for webhook in here.
-    avatar: process.env.webhook_avatar || "https://cdn.discordapp.com/avatars/1182394110473150554/f971b4db65d5b6b031106371f70fe2ce.png" // Place a image url in here.
+
+    url: process.env.webhook_url || "",
+
+    username: process.env.webhook_username || "Elemental Bot",
+
+    avatar: process.env.webhook_avatar ||
+      "https://cdn.discordapp.com/embed/avatars/0.png"
+
   },
+
+  // Bot owners
   owners: [
-    "865630940361785345",
-    "986314682547716117",
-    "866992479328665600"
-  ], // Place bot developers user id in here.
+    "865630940361785345"
+  ],
+
+  // Chat bot settings
   chat_bot: {
-    name: "Caesar", // Place chat bot name.
-    gender: "Male" // Place chat bot gender like example: "Male" | "Female"
+
+    name: "Elemental",
+
+    gender: "Male"
+
   }
+
 };
-/**
- * @copyright
- * Coded by Sobhan-SRZA (mr.sinre) | https://github.com/Sobhan-SRZA
- * @copyright
- * Work for Persian Caesar | https://dsc.gg/persian-caesar
- * @copyright
- * Please Mention Us "Persian Caesar", When Have Problem With Using This Code!
- * @copyright
-*/
