@@ -1,88 +1,92 @@
-const { QuickDB, MongoDriver } = require("quick.db");
+const { QuickDB } = require("quick.db");
 const clc = require("cli-color");
-const error = require("../functions/error");
-const post = require("../functions/post");
 
-const database = require("../../config").source.database;
+let db;
 
 /**
+ * Database Handler
+ * Supports: mongodb, mysql, json, sqlite
  * @param {import("discord.js").Client} client
  */
 module.exports = async (client) => {
 
   try {
 
+    const config = require("../../config");
+    const database = config.source.database;
+
     let driver;
 
-    switch (database.type) {
+    switch (database.type.toLowerCase()) {
 
       case "mongodb": {
+        const { MongoDriver } = require("quickmongo");
 
         driver = new MongoDriver(database.mongoURL);
 
         await driver.connect();
 
-        break;
-
+        console.log(
+          clc.greenBright("✅ MongoDB connected successfully")
+        );
       }
-
-      case "sql": {
-
-        const { SQLiteDriver } = require("quick.db");
-
-        driver = new SQLiteDriver();
-
-        break;
-
-      }
-
-      case "json": {
-
-        const { JSONDriver } = require("quick.db");
-
-        driver = new JSONDriver();
-
-        break;
-
-      }
+      break;
 
       case "mysql": {
-
         const { MySQLDriver } = require("quick.db");
 
         driver = new MySQLDriver(database.mysql);
 
-        break;
-
+        console.log(
+          clc.greenBright("✅ MySQL connected successfully")
+        );
       }
+      break;
 
-      default:
+      case "json": {
+        const { JSONDriver } = require("quick.db");
 
-        throw new Error("Invalid database type");
+        driver = new JSONDriver();
+
+        console.log(
+          clc.greenBright("✅ JSON database connected successfully")
+        );
+      }
+      break;
+
+      case "sqlite":
+      default: {
+        const { SQLiteDriver } = require("quick.db");
+
+        driver = new SQLiteDriver();
+
+        console.log(
+          clc.yellowBright("⚠ Using SQLite database")
+        );
+      }
+      break;
 
     }
 
-    const db = new QuickDB({ driver });
+    db = new QuickDB({ driver });
 
     await db.init();
 
     client.db = db;
 
-    post(
-      `Database Is Successfully Connected!! (Type: ${database.type.toUpperCase()})`,
-      "S"
+    console.log(
+      clc.greenBright(
+        `✅ Database initialized (Type: ${database.type.toUpperCase()})`
+      )
     );
 
-  } catch (e) {
+  } catch (err) {
 
-    post(
-      clc.red(
-        `Database Doesn't Connected!! (Type: ${database.type.toUpperCase()})`
-      ),
-      "E"
+    console.log(
+      clc.redBright("❌ Database connection failed:")
     );
 
-    error(e);
+    console.error(err);
 
   }
 
